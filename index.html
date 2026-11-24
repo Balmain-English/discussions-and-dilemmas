@@ -7,7 +7,7 @@
   <meta name="description" content="Explore discussion activities and ethical dilemmas from the Balmain English Learning Library.">
   <title>Discussions &amp; Dilemmas | Balmain English Learning Library</title>
   <style>
-    :root { color-scheme: light; --ink:#39291f; --muted:#716052; --rust:#9c422f; --rust-dark:#713020; --gold:#d49a3a; --cream:#fff8eb; --line:#e7d4b8; }
+    :root { color-scheme: light; --ink:#39291f; --muted:#716052; --rust:#9c422f; --rust-dark:#713020; --gold:#d49a3a; --cream:#fff8eb; --line:#e7d4b8; --pdf:#245f72; --pdf-dark:#174657; }
     * { box-sizing:border-box; }
     html { min-height:100%; scroll-behavior:smooth; }
     body { min-height:100vh; margin:0; color:var(--ink); background:radial-gradient(ellipse at 85% 4%,rgba(255,255,255,.82),transparent 34%),radial-gradient(ellipse at 8% 36%,rgba(239,190,111,.25),transparent 36%),linear-gradient(135deg,#fbf4e9 0%,#f0dfc7 52%,#f8efe2 100%); font:15px/1.55 "Segoe UI",Arial,sans-serif; }
@@ -25,25 +25,32 @@
     h1 { margin:0; color:#402b22; font:600 clamp(2.15rem,5vw,3.55rem)/1.1 Georgia,"Times New Roman",serif; letter-spacing:-.03em; }
     .lede { max-width:700px; margin:13px 0 0; color:#685548; font-size:1.02rem; }
     .collection { margin-top:42px; }
-    .toolbar { display:flex; align-items:center; justify-content:space-between; gap:18px; margin-bottom:17px; }
+    .toolbar { display:flex; align-items:center; justify-content:space-between; gap:18px; margin-bottom:22px; }
     .section-title { margin:0; color:#402f25; font:600 1.2rem Georgia,"Times New Roman",serif; }
     .count { margin-left:8px; color:var(--muted); font:500 .78rem "Segoe UI",Arial,sans-serif; }
-    .search { width:min(310px,100%); min-height:43px; padding:9px 13px; border:1px solid #cdb89a; border-radius:6px; background:rgba(255,255,255,.88); color:var(--ink); font:inherit; box-shadow:inset 0 1px 2px rgba(57,41,31,.06); }
+    .search { width:min(310px,100%); min-height:41px; padding:8px 12px; border:1px solid #cdb89a; border-radius:6px; background:rgba(255,255,255,.9); color:var(--ink); font:inherit; box-shadow:inset 0 1px 2px rgba(57,41,31,.06); }
     .search::placeholder { color:#76695e; }
     .search:focus-visible { outline:3px solid rgba(156,66,47,.25); outline-offset:2px; border-color:var(--rust); }
-    .grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:14px; padding:0; margin:0; list-style:none; }
+    .activity-section + .activity-section { margin-top:30px; padding-top:25px; border-top:2px solid rgba(137,86,54,.24); }
+    .activity-heading { display:flex; align-items:baseline; gap:9px; margin:0 0 13px; color:#402f25; font:600 1.12rem Georgia,"Times New Roman",serif; }
+    .activity-heading small { color:var(--muted); font:500 .76rem "Segoe UI",Arial,sans-serif; }
+    .grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px; padding:0; margin:0; list-style:none; }
     .grid li { min-width:0; }
-    .card { display:flex; min-height:108px; height:100%; flex-direction:column; justify-content:space-between; gap:12px; padding:17px 18px 14px; border:1px solid #b87553; border-radius:7px; background:linear-gradient(145deg,#fffdfa 0%,#fff0d6 58%,#f2d5a9 100%); box-shadow:0 4px 10px rgba(93,51,31,.10),inset 0 1px 0 rgba(255,255,255,.95); color:var(--ink); text-decoration:none; transition:transform .16s ease,box-shadow .16s ease,border-color .16s ease; }
-    .card:hover { transform:translateY(-3px); border-color:var(--rust); background:linear-gradient(145deg,#fffefa 0%,#ffe7c2 58%,#edc58b 100%); box-shadow:0 9px 19px rgba(93,51,31,.17),inset 0 1px 0 #fff; }
-    .card:focus-visible { outline:3px solid var(--rust); outline-offset:3px; }
-    .card-title { font-size:1rem; font-weight:700; line-height:1.35; overflow-wrap:anywhere; }
-    .card-meta { display:flex; align-items:center; justify-content:space-between; gap:8px; padding-top:9px; border-top:1px solid rgba(137,86,54,.22); color:#665344; font-size:.77rem; }
-    .open { color:var(--rust-dark); font-weight:750; white-space:nowrap; }
-    .message { grid-column:1/-1; padding:22px; border:1px dashed #c5a984; border-radius:6px; background:rgba(255,255,255,.68); color:var(--muted); text-align:center; }
+    .activity-link { display:flex; min-height:78px; height:100%; align-items:center; justify-content:space-between; gap:12px; padding:13px 15px; border:1px solid #b87553; border-radius:8px; background:linear-gradient(145deg,#fffdfa 0%,#fff0d6 58%,#f2d5a9 100%); box-shadow:0 3px 9px rgba(93,51,31,.09); color:var(--ink); text-decoration:none; transition:transform .16s ease,box-shadow .16s ease,background .16s ease; }
+    .activity-link:hover { transform:translateY(-2px); background:linear-gradient(145deg,#fffefa 0%,#ffe7c2 58%,#edc58b 100%); box-shadow:0 7px 15px rgba(93,51,31,.15); }
+    .activity-link:focus-visible { outline:3px solid var(--rust); outline-offset:3px; }
+    .activity-title { min-width:0; font-size:.94rem; font-weight:700; line-height:1.35; overflow-wrap:anywhere; }
+    .activity-action { flex:none; padding:6px 10px; border-radius:5px; background:var(--rust); color:#fffaf1; font-size:.76rem; font-weight:750; white-space:nowrap; }
+    .activity-link.pdf { border-color:#6a9caa; background:linear-gradient(145deg,#f8ffff,#d9f0f3); }
+    .activity-link.pdf:hover { background:linear-gradient(145deg,#fff,#c8e8ed); }
+    .activity-link.pdf .activity-action { background:var(--pdf); color:#fff; }
+    .activity-link.pdf:hover .activity-action { background:var(--pdf-dark); }
+    .message { padding:18px; border:1px dashed #c5a984; border-radius:6px; background:rgba(255,255,255,.68); color:var(--muted); text-align:center; }
+    .message[hidden], .activity-section[hidden] { display:none; }
     footer { padding:18px 0 24px; color:#695849; font-size:.78rem; text-align:center; }
     @media (max-width:800px) { .grid { grid-template-columns:repeat(2,minmax(0,1fr)); } main { padding-top:25px; } }
-    @media (max-width:560px) { .shell { width:calc(100% - 28px); } .masthead-inner { min-height:58px; } .hero { padding:32px 20px; } .hero::after { right:-210px; } .toolbar { align-items:stretch; flex-direction:column; gap:12px; } .search { width:100%; } .grid { grid-template-columns:1fr; } .collection { margin-top:32px; } }
-    @media (prefers-reduced-motion:reduce) { *,*::before,*::after { scroll-behavior:auto!important; transition:none!important; } .card:hover { transform:none; } }
+    @media (max-width:560px) { .shell { width:calc(100% - 28px); } .masthead-inner { min-height:58px; } .hero { padding:32px 20px; } .hero::after { right:-210px; } .toolbar { align-items:stretch; flex-direction:column; gap:10px; } .search { width:100%; } .grid { grid-template-columns:1fr; gap:9px; } .collection { margin-top:32px; } .activity-section + .activity-section { margin-top:24px; padding-top:20px; } }
+    @media (prefers-reduced-motion:reduce) { *,*::before,*::after { scroll-behavior:auto!important; transition:none!important; } .activity-link:hover { transform:none; } }
   </style>
 </head>
 <body>
@@ -55,11 +62,22 @@
       <section class="intro" aria-labelledby="page-title">
         <p class="eyebrow">A little conversation goes a long way</p>
         <h1 id="page-title">Discussions &amp; Dilemmas</h1>
-        <p class="lede">Explore discussion prompts, scenario activities and ethical dilemmas. Choose an activity below to open it.</p>
+        <p class="lede">Explore discussion prompts, scenario activities and ethical dilemmas. HTML activities and PDF dilemmas are grouped separately below.</p>
       </section>
       <section class="collection" aria-label="Discussions and dilemmas directory">
-        <div class="toolbar"><h2 class="section-title">Choose an activity <span class="count" id="count" aria-live="polite">Loading…</span></h2><input id="search" class="search" type="search" placeholder="Search activities" aria-label="Search discussion and dilemma activities"></div>
-        <ul id="items" class="grid" aria-live="polite" aria-busy="true"></ul>
+        <div class="toolbar">
+          <h2 class="section-title">Choose an activity <span class="count" id="count" aria-live="polite">Loading…</span></h2>
+          <input id="search" class="search" type="search" placeholder="Search activities" aria-label="Search discussion and dilemma activities">
+        </div>
+        <section class="activity-section" id="html-section" aria-labelledby="html-heading">
+          <h3 class="activity-heading" id="html-heading">Interactive exercises <small id="html-count"></small></h3>
+          <ul id="html-items" class="grid" aria-live="polite" aria-busy="true"></ul>
+        </section>
+        <section class="activity-section" id="pdf-section" aria-labelledby="pdf-heading">
+          <h3 class="activity-heading" id="pdf-heading">PDF dilemmas <small id="pdf-count"></small></h3>
+          <ul id="pdf-items" class="grid" aria-live="polite" aria-busy="true"></ul>
+        </section>
+        <p id="message" class="message" hidden></p>
       </section>
     </div>
   </main>
@@ -69,9 +87,15 @@
       const owner = 'Balmain-English';
       const repo = 'discussions-and-dilemmas';
       const branch = 'main';
-      const list = document.getElementById('items');
+      const htmlList = document.getElementById('html-items');
+      const pdfList = document.getElementById('pdf-items');
+      const htmlSection = document.getElementById('html-section');
+      const pdfSection = document.getElementById('pdf-section');
       const search = document.getElementById('search');
       const count = document.getElementById('count');
+      const htmlCount = document.getElementById('html-count');
+      const pdfCount = document.getElementById('pdf-count');
+      const message = document.getElementById('message');
       let activities = [];
 
       const titleOf = path => path.split('/').pop()
@@ -81,61 +105,65 @@
         .trim()
         .replace(/\b\w/g, character => character.toUpperCase());
 
+      function makeLink(activity) {
+        const item = document.createElement('li');
+        const link = document.createElement('a');
+        const isPdf = /\.pdf$/i.test(activity.path);
+        link.className = `activity-link${isPdf ? ' pdf' : ''}`;
+        link.href = './' + activity.path.split('/').map(encodeURIComponent).join('/');
+        if (isPdf) {
+          link.target = '_blank';
+          link.rel = 'noopener noreferrer';
+          link.setAttribute('aria-label', `${activity.title} (PDF, opens in a new tab)`);
+        }
+        const title = document.createElement('span');
+        title.className = 'activity-title';
+        title.textContent = activity.title;
+        const action = document.createElement('span');
+        action.className = 'activity-action';
+        action.textContent = isPdf ? 'Open PDF ↗' : 'Open exercise →';
+        link.append(title, action);
+        item.append(link);
+        return item;
+      }
+
       function render() {
         const query = search.value.trim().toLowerCase();
-        const visible = activities.filter(activity => activity.title.toLowerCase().includes(query) || activity.path.toLower(), false);
+        const visible = activities.filter(activity => activity.title.toLowerCase().includes(query) || activity.path.toLowerCase().includes(query));
+        const htmlActivities = visible.filter(activity => /\.html?$/i.test(activity.path));
+        const pdfActivities = visible.filter(activity => /\.pdf$/i.test(activity.path));
         count.textContent = `${visible.length} ${visible.length === 1 ? 'activity' : 'activities'}`;
-        list.replaceChildren();
-        if (!visible.length) {
-          const item = document.createElement('li');
-          item.className = 'message';
-          item.textContent = activities.length ? 'No activities match your search.' : 'No activities are available yet. Check back soon.';
-          list.append(item);
-          return;
-        }
-        const fragment = document.createDocumentFragment();
-        visible.forEach(activity => {
-          const item = document.createElement('li');
-          const link = document.createElement('a');
-          link.className = 'card';
-          link.href = './' + activity.path.split('/').map(encodeURIComponent).join('/');
-          if (/\.pdf$/i.test(activity.path)) link.target = '_blank';
-          const title = document.createElement('span');
-          title.className = 'card-title';
-          title.textContent = activity.title;
-          const meta = document.createElement('span');
-          meta.className = 'card-meta';
-          const kind = document.createElement('span');
-          kind.textContent = activity.kind;
-          const open = document.createElement('span');
-          open.className = 'open';
-          open.textContent = 'Open ↗';
-          meta.append(kind, open);
-          link.append(title, meta);
-          item.append(link);
-          fragment.append(item);
-        });
-        list.append(fragment);
+        htmlCount.textContent = `(${htmlActivities.length})`;
+        pdfCount.textContent = `(${pdfActivities.length})`;
+        htmlList.replaceChildren(...htmlActivities.map(makeLink));
+        pdfList.replaceChildren(...pdfActivities.map(makeLink));
+        htmlSection.hidden = htmlActivities.length === 0;
+        pdfSection.hidden = pdfActivities.length === 0;
+        message.hidden = visible.length > 0;
+        message.textContent = activities.length ? 'No activities match your search.' : 'No activities are available yet. Check back soon.';
       }
 
       fetch(`https://api.github.com/repos/${owner}/${repo}/git/trees/${branch}?recursive=1`, { cache:'no-store' })
         .then(response => { if (!response.ok) throw new Error('Unable to load activities'); return response.json(); })
         .then(data => {
+          if (data.truncated) throw new Error('Activity list was incomplete');
           activities = (data.tree || [])
             .filter(file => file.type === 'blob' && /\.(html?|pdf)$/i.test(file.path))
             .filter(file => !/^index\.html?$/i.test(file.path.split('/').pop()))
-            .map(file => ({ path:file.path, title:titleOf(file.path), kind:/\.pdf$/i.test(file.path) ? 'Dilemma PDF' : 'Discussion activity' }))
+            .map(file => ({ path:file.path, title:titleOf(file.path) }))
             .sort((a,b) => a.title.localeCompare(b.title));
-          list.setAttribute('aria-busy','false');
+          htmlList.setAttribute('aria-busy','false');
+          pdfList.setAttribute('aria-busy','false');
           render();
         })
         .catch(() => {
           count.textContent = 'Activities unavailable';
-          list.setAttribute('aria-busy','false');
-          const message = document.createElement('li');
-          message.className = 'message';
+          htmlList.setAttribute('aria-busy','false');
+          pdfList.setAttribute('aria-busy','false');
+          htmlSection.hidden = true;
+          pdfSection.hidden = true;
+          message.hidden = false;
           message.textContent = 'Unable to load activities right now. Please try again later.';
-          list.replaceChildren(message);
         });
 
       search.addEventListener('input', render);
