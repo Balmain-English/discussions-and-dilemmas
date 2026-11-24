@@ -1,0 +1,879 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Susan's HomeBnb: A Disaster in Progress</title>
+<link href="https://fonts.googleapis.com/css2?family=Abril+Fatface&family=DM+Sans:wght@300;400;500;700&family=Permanent+Marker&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cream:#FFF8EE; --rust:#C1440E; --gold:#E8A020; --dark:#1A1208;
+    --mid:#3D2B0F; --light-rust:#F0694A; --green:#2D6A4F; --red:#8B1A1A;
+    --paper:#F5EDD8; --ink:#2C1810;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    background-color:var(--dark);
+    background-image:
+      repeating-linear-gradient(0deg,transparent,transparent 40px,rgba(255,255,255,.015) 40px,rgba(255,255,255,.015) 41px),
+      repeating-linear-gradient(90deg,transparent,transparent 40px,rgba(255,255,255,.015) 40px,rgba(255,255,255,.015) 41px);
+    font-family:'DM Sans',sans-serif;color:var(--cream);min-height:100vh;
+    display:flex;flex-direction:column;align-items:center;padding:20px;
+  }
+  .header{text-align:center;padding:30px 20px 10px;max-width:700px;width:100%}
+  .header h1{
+    font-family:'Abril Fatface',serif;font-size:clamp(2.2rem,6vw,4rem);
+    color:var(--gold);line-height:1;letter-spacing:-1px;text-shadow:4px 4px 0 var(--rust);
+  }
+  .header .subtitle{
+    font-family:'Permanent Marker',cursive;color:var(--light-rust);
+    font-size:clamp(.85rem,2.5vw,1.1rem);margin-top:8px;opacity:.9;
+  }
+  .score-bar{
+    display:flex;justify-content:space-between;align-items:center;
+    width:100%;max-width:700px;background:var(--mid);border:2px solid var(--gold);
+    border-radius:8px;padding:10px 20px;margin:16px 0;
+  }
+  .score-label{font-family:'Permanent Marker',cursive;color:var(--gold);font-size:.9rem}
+  .score-value{font-family:'Abril Fatface',serif;font-size:2rem;color:var(--cream)}
+  .progress-bar-wrap{
+    width:100%;max-width:700px;background:var(--mid);border-radius:4px;
+    height:8px;margin-bottom:16px;border:1px solid rgba(255,255,255,.1);
+  }
+  .progress-bar-fill{
+    height:100%;background:linear-gradient(90deg,var(--rust),var(--gold));
+    border-radius:4px;transition:width .5s ease;
+  }
+  .card{
+    background:var(--paper);color:var(--ink);border-radius:12px;
+    max-width:700px;width:100%;padding:28px 30px 24px;position:relative;
+    box-shadow:6px 6px 0 var(--rust),12px 12px 0 rgba(0,0,0,.3);
+    animation:slideIn .35s ease;
+  }
+  @keyframes slideIn{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+  .card.emergency{
+    background:#2A0A0A;color:var(--cream);border:3px solid var(--rust);
+    box-shadow:6px 6px 0 #8B0000,0 0 30px rgba(193,68,14,.35);
+  }
+  .emergency-badge{
+    display:inline-block;background:var(--rust);color:white;
+    font-family:'Permanent Marker',cursive;font-size:.75rem;
+    padding:3px 12px;border-radius:20px;margin-bottom:10px;
+    letter-spacing:2px;text-transform:uppercase;animation:pulse 1s infinite alternate;
+  }
+  @keyframes pulse{from{opacity:.8}to{opacity:1;box-shadow:0 0 12px var(--rust)}}
+  .step-counter{
+    position:absolute;top:-14px;right:20px;background:var(--gold);color:var(--dark);
+    font-family:'Abril Fatface',serif;font-size:.85rem;
+    padding:2px 14px;border-radius:20px;border:2px solid var(--dark);
+  }
+  .card h2{
+    font-family:'Abril Fatface',serif;font-size:clamp(1.2rem,3.5vw,1.7rem);
+    line-height:1.2;margin-bottom:10px;color:var(--rust);
+  }
+  .card.emergency h2{color:var(--light-rust)}
+  .scenario-text{font-size:.97rem;line-height:1.6;margin-bottom:20px;color:var(--mid)}
+  .card.emergency .scenario-text{color:#e8c9b0}
+  .choices{display:flex;flex-direction:column;gap:10px}
+  .choice-btn{
+    background:white;border:2px solid var(--mid);border-radius:8px;
+    padding:12px 16px;text-align:left;font-family:'DM Sans',sans-serif;
+    font-size:.92rem;cursor:pointer;transition:all .18s;color:var(--ink);line-height:1.4;
+  }
+  .choice-btn:hover{background:var(--gold);border-color:var(--rust);transform:translateX(4px);color:var(--dark)}
+  .card.emergency .choice-btn{background:#3D1010;border-color:#7A3030;color:var(--cream)}
+  .card.emergency .choice-btn:hover{background:var(--rust);border-color:var(--gold)}
+  .feedback-card{
+    background:var(--paper);color:var(--ink);border-radius:12px;
+    max-width:700px;width:100%;padding:28px 30px 24px;
+    text-align:center;box-shadow:6px 6px 0 var(--rust);animation:slideIn .35s ease;
+  }
+  .feedback-card.gameover{
+    background:#1A0000;color:var(--cream);border:3px solid #8B0000;
+    box-shadow:6px 6px 0 #500000,0 0 40px rgba(139,0,0,.5);
+  }
+  .feedback-icon{font-size:3rem;margin-bottom:10px}
+  .feedback-title{font-family:'Abril Fatface',serif;font-size:clamp(1.4rem,4vw,2rem);margin-bottom:8px}
+  .feedback-title.good{color:var(--green)}
+  .feedback-title.bad{color:var(--rust)}
+  .feedback-title.terrible{color:var(--red)}
+  .feedback-title.arrest{color:#ff3a3a}
+  .feedback-pts{font-family:'Permanent Marker',cursive;font-size:1.4rem;margin-bottom:12px}
+  .pts-pos{color:var(--green)}.pts-neg{color:var(--red)}.pts-zero{color:#777}
+  .feedback-body{font-size:.95rem;line-height:1.6;margin-bottom:20px;color:var(--mid);font-style:italic}
+  .feedback-card.gameover .feedback-body{color:#e8c9b0}
+  .next-btn{
+    background:var(--rust);color:white;border:none;border-radius:8px;
+    padding:13px 32px;font-family:'Abril Fatface',serif;font-size:1.1rem;
+    cursor:pointer;transition:all .2s;box-shadow:3px 3px 0 var(--mid);
+  }
+  .next-btn:hover{background:var(--gold);color:var(--dark);transform:translateY(-2px);box-shadow:3px 5px 0 var(--mid)}
+  .final-card{
+    background:var(--paper);border-radius:12px;max-width:700px;width:100%;
+    padding:40px 36px;text-align:center;box-shadow:8px 8px 0 var(--rust);animation:slideIn .4s ease;
+  }
+  .final-card h2{
+    font-family:'Abril Fatface',serif;font-size:clamp(1.8rem,5vw,2.8rem);
+    line-height:1.1;margin-bottom:14px;color:var(--rust);
+  }
+  .final-score-big{
+    font-family:'Abril Fatface',serif;font-size:5rem;color:var(--gold);
+    text-shadow:4px 4px 0 var(--rust);line-height:1;margin:10px 0;
+  }
+  .final-verdict{font-size:1rem;line-height:1.7;color:var(--mid);margin:16px 0 24px;font-style:italic}
+  .restart-btn{
+    background:var(--rust);color:white;border:none;border-radius:8px;
+    padding:14px 40px;font-family:'Abril Fatface',serif;font-size:1.2rem;
+    cursor:pointer;transition:all .2s;box-shadow:4px 4px 0 var(--mid);
+  }
+  .restart-btn:hover{background:var(--dark);transform:translateY(-2px)}
+  .again-note{font-size:.8rem;color:#999;margin-top:12px}
+  .divider{width:60px;height:3px;background:var(--gold);margin:14px auto;border-radius:2px}
+  .intro-card{
+    background:var(--paper);border-radius:12px;max-width:700px;width:100%;
+    padding:36px;text-align:center;box-shadow:8px 8px 0 var(--rust);
+    animation:slideIn .4s ease;color:var(--ink);
+  }
+  .intro-card h2{font-family:'Abril Fatface',serif;font-size:1.8rem;color:var(--rust);margin-bottom:12px}
+  .intro-card p{font-size:.95rem;line-height:1.7;color:var(--mid);margin-bottom:12px}
+  .start-btn{
+    background:var(--rust);color:white;border:none;border-radius:8px;
+    padding:14px 40px;font-family:'Abril Fatface',serif;font-size:1.2rem;
+    cursor:pointer;transition:all .2s;box-shadow:4px 4px 0 var(--mid);margin-top:8px;
+  }
+  .start-btn:hover{background:var(--gold);color:var(--dark);transform:translateY(-2px)}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>Susan's HomeBnb</h1>
+  <p class="subtitle">A Decision Maze for People Who Think Hosting is Easy™</p>
+</div>
+
+<div class="score-bar">
+  <div>
+    <div class="score-label">SCORE</div>
+    <div class="score-value" id="scoreDisplay">0</div>
+  </div>
+  <div style="text-align:right">
+    <div class="score-label">SCENARIO</div>
+    <div class="score-value" id="stepDisplay">0/20</div>
+  </div>
+</div>
+
+<div class="progress-bar-wrap">
+  <div class="progress-bar-fill" id="progressFill" style="width:0%"></div>
+</div>
+
+<div id="gameArea"></div>
+
+<script>
+// ─── Fisher-Yates Shuffle ───────────────────────────────────────────────────
+function shuffle(arr){
+  const a=[...arr];
+  for(let i=a.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [a[i],a[j]]=[a[j],a[i]];
+  }
+  return a;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// SCENARIO POOL — 48 regular scenarios
+// pts: 2=correct, 0=meh, -1=poor, -2=catastrophic(repeat)
+// ═══════════════════════════════════════════════════════════════════════════
+const scenarioPool = [
+
+// ── GROUP A: Core hosting disasters ────────────────────────────────────────
+
+{id:"refund1",title:"The Phantom Damage Claim",
+text:"It's 9am. A guest has checked out and immediately filed a claim saying your 'walls were covered in mould, the shower didn't work, and the bed was basically a pile of twigs.' You have photos from your pre-check-in inspection this morning showing a spotless, fully functioning property. They want a full refund — £340.",
+choices:[
+  {text:"Send a grovelling apology, refund the full amount, and throw in a discount voucher for next time. Peace at any price.",pts:-2,repeat:true,fb:"SPECTACULAR. You just rewarded fraud, validated a liar, and invited them back at a discount. Somewhere a scammer is framing your apology email."},
+  {text:"Ignore the claim entirely and hope the platform doesn't notice.",pts:-1,fb:"Bold strategy. Unfortunately, ignoring a formal dispute on the platform results in an automatic refund in the guest's favour. Well done, you've achieved the worst outcome through sheer inaction."},
+  {text:"Write a long, emotional paragraph about how hard you work and how hurtful this is, then refund half.",pts:0,fb:"Not the worst call, but leading with your feelings in a commercial dispute is... a choice. You've half-solved the problem while also giving the guest a window into your psyche they did not ask for."},
+  {text:"Submit your timestamped pre-check-in photos and inspection notes through the platform's resolution centre immediately.",pts:2,fb:"Correct. Documentation wins disputes. The claim was rejected and Susan updated her house rules to include a pre-arrival video walkthrough. Small W."}
+]},
+
+{id:"mess1",title:"The Great Biohazard of Flat 4",
+text:"Your cleaner has just sent you SEVENTEEN photos. The guest has left behind: a paddling pool inflated inside the lounge, what appears to be an entire kebab shop in the kitchen, and a bedroom that looks like it hosted a festival — including a tent. Checkout was 10am. It's now 11am and your next guest arrives at 2pm.",
+choices:[
+  {text:"Call the next guest and tell them there's been a 'small delay'. It'll be fine.",pts:-1,fb:"A 'small delay' that involves a Glastonbury tent in the bedroom is not fine. Your 2pm guest is going to arrive to chaos and you're going to get a 1-star review that goes viral."},
+  {text:"Post the photos to your local Facebook group asking if anyone recognises the mess. Name and shame time.",pts:-2,repeat:true,fb:"Congratulations, you've breached GDPR, violated the platform's privacy policy, and started a neighbourhood argument. The local Facebook group is now 40% about you. Your listing has been suspended."},
+  {text:"Cancel the 2pm booking, pay the emergency cleaning fee, charge the departing guest for extra cleaning via the resolution centre with the photos as evidence.",pts:2,fb:"Nobody loves this answer but it's correct. Document, charge, communicate. You kept your rating, recovered most of the cleaning cost, and the departing guest got a platform warning. Take the W."},
+  {text:"Roll up your sleeves, clean it yourself in three hours, and say nothing to anyone.",pts:0,fb:"Chaotic good energy. You made the 2pm booking just in time, your back hurts, and you've learned absolutely nothing that will prevent this happening again."}
+]},
+
+{id:"party1",title:"The Neighbours Have Called. The Police Have Also Called.",
+text:"It's 2am on a Saturday. You have two missed calls from your neighbour Janet, three from an unknown number, and a platform notification. You open it: 'Noise complaint registered at your property. Local authorities have been contacted.' Your guests booked for 'a quiet family weekend.'",
+choices:[
+  {text:"Turn your phone off. What you don't know can't hurt you. Sleep is important.",pts:-2,repeat:true,fb:"When you wake up, you have a £500 fine notice, two noise abatement warnings, a 1-star review, and Janet has started a petition. You are locally notorious. Your listing is suspended."},
+  {text:"Text the guest: 'Hey, everything OK? 😊'",pts:-1,fb:"The twee emoji really commits to the bit. They don't reply. The party continues. You've done nothing except document that you were awake and chose texting as your intervention tool."},
+  {text:"Call the guests, give them a formal warning that the booking will be cancelled if the noise doesn't stop immediately, and log everything on the platform.",pts:2,fb:"Good. Direct communication, documented warning, platform evidence trail. The party quietened down (eventually). You still got a noise complaint on record but no fine. Janet sent a passive-aggressive card."},
+  {text:"Drive over and knock on the door yourself in your pyjamas.",pts:0,fb:"Brave. Chaotic. Surprisingly effective — they were mostly embarrassed. No fine, but you are now the unhinged landlord of local legend and Janet photographed you for the neighbourhood WhatsApp group."}
+]},
+
+{id:"film1",title:"Lights, Camera, Absolute Mortification",
+text:"A friend has just sent you a link with the message 'IS THIS YOUR FLAT???' You open it. It is your flat — now the recognisable set of a 'specialist adult production' currently doing very well online. Your Ikea lamp. Your specific shade of teal feature wall. The film was made three months ago by a guest who booked for 'a photography project.'",
+choices:[
+  {text:"Share the link to the family WhatsApp group to ask if anyone else recognises the interior. For confirmation purposes.",pts:-2,repeat:true,fb:"Your Auntie Pat has now seen things that cannot be unseen. Your cousin has screenshotted this. Christmas is cancelled indefinitely."},
+  {text:"Repaint the wall immediately, replace the lamp, and pretend this never happened.",pts:0,fb:"The ostrich strategy. The film still exists. The teal wall is gone but your property's digital legacy lives forever. You've also spent £400 on paint for purely psychological reasons."},
+  {text:"Contact a solicitor about the misrepresentation of the booking purpose, issue a DMCA takedown notice for your property, and add an explicit 'no commercial filming' clause to your house rules.",pts:2,fb:"Correct and correct and correct. The video was taken down within two weeks. Your solicitor's letter cost £150. You've updated your listing and are now a cautionary tale at the local landlords' association."},
+  {text:"Message the production company directly to ask about a 'licensing fee' for use of your property.",pts:-1,fb:"Bold commercial instinct, deeply inadvisable legally. They ignored you, your message constituted a form of implicit consent in the subsequent dispute, and your solicitor was not pleased."}
+]},
+
+{id:"drugs1",title:"There's a Lot of Traffic for a 'Remote Worker'",
+text:"Your downstairs neighbour Gerald has knocked to say there have been 'a lot of visitors at odd hours' all week. The guest booked for 14 days for 'remote working and relaxation.' Gerald, who is retired and monitors things, has counted 22 different visitors in 4 days. Some arrive at 3am.",
+choices:[
+  {text:"Tell Gerald to mind his own business and stop timing people's arrivals. It's a free country.",pts:-1,fb:"Gerald IS minding your business, which is the problem. Alienating your ground-floor sentinel is extremely unwise. He's now written to the council."},
+  {text:"Message the guest: 'Hi! Hope you're settling in. Just a reminder, no unauthorised guests overnight per house rules :)'",pts:0,fb:"Too gentle, too smiley, too late. The guest says 'Of course!' and nothing changes. At least you have documented you were vaguely aware something was happening."},
+  {text:"Do nothing. What guests do in your property isn't technically your problem.",pts:-2,repeat:true,fb:"It is absolutely your problem when police execute a warrant and your property is documented as a dealing location. You're not charged but your property is flagged, your mortgage lender is notified, and Gerald has written a letter to the local paper."},
+  {text:"Terminate the booking immediately citing repeated house rule violations, contact the platform to document the situation, and inform the property manager or block warden.",pts:2,fb:"Not easy but correct. You lost 10 days of income but protected your property, your licence, and your mortgage. Gerald sent a thank you note. He is not as bad as you thought."}
+]},
+
+{id:"stolen1",title:"That's an Unusual Amount of Flat-Pack Furniture",
+text:"Your cleaner Magda has called. The guest checked out three days early and has left behind twelve large sealed boxes smelling of warehouse. Three are from the same electronics retailer. The guest is not responding to messages.",
+choices:[
+  {text:"Assume it's an eBay seller who ran out of storage space. List the boxes on Marketplace to recoup your losses.",pts:-2,repeat:true,fb:"You have just attempted to sell stolen goods online. This is called handling stolen property. The police traced the listings to you within 48 hours. This is a criminal matter now. Well done."},
+  {text:"Contact the platform, photograph everything without opening the boxes, and call the non-emergency police line to report abandoned property of possible suspicious origin.",pts:2,fb:"Boring, correct, legally sound. Police confirmed the goods were stolen. You are a witness, not a suspect. Your property was cleared within 24 hours. You wrote a very stern review."},
+  {text:"Open the boxes to check what's inside before deciding anything.",pts:-1,fb:"Now your fingerprints are on stolen goods. You've compromised evidence and technically participated in handling. Call the police and do not mention you opened them. Maybe."},
+  {text:"Stack the boxes in the corridor and message the guest every six hours until they respond.",pts:0,fb:"They never respond. In four days you eventually call the police anyway, except now the boxes have been in your property longer, Magda has quit, and your next booking had to be cancelled. Slower correct answer."}
+]},
+
+{id:"subletting1",title:"There Are Twelve People in a One-Bed",
+text:"You booked for two guests. Magda (she came back, she's resilient) has turned up to do the mid-stay clean and found twelve people. There are sleeping bags in the bathroom. Someone has helpfully labelled shelves in the fridge.",
+choices:[
+  {text:"Charge per head. If they're all staying, they're all paying. Send a payment request for ten extra guests.",pts:-1,fb:"This implicitly condones the situation and creates zero legal authority. They ignore the payment request and you now have twelve people staying with your tacit acknowledgement."},
+  {text:"Arrange emergency termination of the booking through the platform, citing unauthorised guests, fire safety concerns, and breach of house rules. Give them 24 hours to vacate.",pts:2,fb:"Legally sound and the only defensible position given the fire safety implications alone. They left (mostly). You kept your deposit. The fridge label situation haunts you still."},
+  {text:"Call Magda back and ask if she counted correctly. Maybe some of them are very small.",pts:0,fb:"They are not very small. Magda counted correctly. You have bought yourself 20 minutes and changed nothing."},
+  {text:"Turn off the hot water and heating remotely via your smart home app until they leave.",pts:-2,repeat:true,fb:"You have just committed illegal eviction. This is a criminal offence regardless of the circumstances. The twelve people have more rights right now than you do. You are having a very bad week legally."}
+]},
+
+{id:"pet1",title:"Something Has Happened to the Carpet",
+text:"Your listing clearly states NO PETS in bold. Your guests brought a 'support animal', a 'purely emotional support python', and something they describe as a 'small farm animal, very calm.' All three spent five days in your property. The carpet in the main bedroom is now a different texture.",
+choices:[
+  {text:"Charge for carpet replacement through the security deposit plus cleaning, document everything with photos, raise a formal resolution claim through the platform citing house rule breach.",pts:2,fb:"Correct. The python and the 'calm' farm animal did not protect the guests from the resolution process. You got £380 towards a new carpet and a very memorable review to reply to."},
+  {text:"Leave a negative review but let the deposit go because confrontation is exhausting.",pts:0,fb:"Fair enough, honestly. You're out of pocket but you've warned future hosts. The carpet cost £450. The life lesson cost more."},
+  {text:"Reply to their review first, before they've left one, with a pre-emptive strike about the carpet.",pts:-1,fb:"You cannot reply to a review before it's posted. Also the email you sent was flagged as harassment. Calm down."},
+  {text:"Go to the property while they're still there to inspect the carpet personally.",pts:-2,repeat:true,fb:"Entering an occupied property without giving legal notice is unlawful entry. The python is also still there. You retreated. The platform received a complaint about you. Stunning reversal."}
+]},
+
+{id:"review1",title:"The Three-Novel Review",
+text:"A guest has left you a 1-star review. It is 847 words long. It covers: the angle of the shower head, the thread count of the towels (estimated), the positioning of a lamp, the WiFi name, and ends with a personal character assessment of you that is legally adjacent to defamation. Other guests have given you 4.8 stars for the same things.",
+choices:[
+  {text:"Write an 848-word reply going point by point. Two can play at this game.",pts:-1,fb:"The response is now searchable, indexed, and visible to every future guest. You've given the review twice the oxygen and made yourself look unhinged. The WiFi name wasn't even that bad."},
+  {text:"Flag the review to the platform as potentially defamatory, write a brief, professional, factual response that addresses nothing emotionally, and move on.",pts:2,fb:"Correct. Your response: 'We're sorry this stay didn't meet expectations. We note other guests rate these same features 4.8 stars. We wish you well.' Chef's kiss. The review was eventually removed."},
+  {text:"Offer the guest a partial refund to remove the review.",pts:-2,repeat:true,fb:"Review manipulation is against platform terms of service. Both you and the review have now been investigated. The review stays. You've also lost £60 and your dignity."},
+  {text:"Just cry about it for a bit and then do nothing.",pts:0,fb:"Honestly valid. The review is there. You cried. You woke up. The 4.8 average remains. Sometimes nothing is the correct response. You're fine."}
+]},
+
+{id:"cancel1",title:"The Convenient Medical Emergency",
+text:"Your guest cancelled the day before a two-week booking citing 'a serious medical emergency.' Under your flexible policy you owe them a full refund. They have simultaneously posted an Instagram story from a festival with the caption 'IBIZA BABY 🎉.' Their username is public. Magda saw it.",
+choices:[
+  {text:"Screenshot the Instagram story, email it to the platform, and demand they investigate the fraudulent cancellation claim.",pts:2,fb:"A legitimate approach with documented evidence. The platform investigated. The guest's 'medical emergency' refund was reversed. They were also warned about fraud. Magda has an eagle eye."},
+  {text:"Post the screenshot to your own Instagram with the caption 'Medical emergency looks fun 🤔' and tag the platform.",pts:-2,repeat:true,fb:"You've now breached privacy guidelines, been reported to the platform by the guest, and your social media presence is being reviewed. Also you have 83 followers. This was not effective."},
+  {text:"Issue the refund and quietly switch to a strict cancellation policy for future bookings.",pts:0,fb:"You lost the money but protected yourself going forward. Not wrong exactly. A bit of a personal defeat but an operationally sound response."},
+  {text:"Message the guest directly asking them to explain the Ibiza story. See what they say.",pts:-1,fb:"They blocked you. The refund was still processed automatically. You've achieved nothing but your own frustration and a blocked contact."}
+]},
+
+{id:"fire1",title:"Someone Has Tested Every Smoke Alarm. With Actual Smoke.",
+text:"Your smart smoke detector says 'Alarm triggered — kitchen.' Then a text from the guest: 'Sorry, we tried to deep fry a turkey in your kitchen. The ceiling is a bit brown. We turned the alarm off so don't worry. Nothing major :)' The ':)' is doing a lot of work here.",
+choices:[
+  {text:"Reply: 'No worries! Accidents happen :)'",pts:-2,repeat:true,fb:"You have explicitly waived your right to claim damages, in writing, with a matching smiley face. The ceiling remains brown. The guest left a great review, which is the cruellest irony of all."},
+  {text:"Contact the platform immediately, arrange for a fire safety inspection, document all damage with timestamped photos, and issue a damage claim.",pts:2,fb:"Correct. The turkey had no business being in your kitchen but your response was entirely professional. The claim covered £620 in damages. The smoke detector saved the day. So did you."},
+  {text:"Visit the property to assess the damage yourself, tell the guest they need to leave early, and sort it after checkout.",pts:0,fb:"Reasonable. You lost one night's revenue and spent two hours cleaning brown ceiling. The platform got no documentation so no claim was possible. Fine but financially you ate it."},
+  {text:"Ask the guest for their recipe. You've always wanted to try a deep fried turkey.",pts:-1,fb:"Camaraderie with people who have just damaged your property is charming but inadvisable. The claim was weakened by the informal, jovial tone of your subsequent messages. The ceiling is still brown."}
+]},
+
+{id:"key1",title:"The Checkout That Became a Residency",
+text:"Your guests were supposed to check out at 10am. It is now 1:30pm, your next guests are sitting in their car outside, and there is no answer at the door or on the phone. The smart thermostat app says the heating is on. They are either ignoring you or asleep. Possibly both.",
+choices:[
+  {text:"Ask your next guests to wait in the nearby café and pay for their lunch. They'll understand.",pts:0,fb:"A human solution. It cost you £34 in sandwiches. Your next guests actually quite liked the café. The overstaying guests eventually emerged at 2:45pm, unapologetic. But it was fine. Kind of."},
+  {text:"Use your spare key to enter the property.",pts:-2,repeat:true,fb:"Unlawful entry. The guests film you entering with their phone. The video is sent to the platform before you've even reached the landing. You are now the host who broke in. This does not end well."},
+  {text:"Formally contact the platform to document the unauthorised overstay and issue a late checkout fee via the resolution centre.",pts:2,fb:"Correct. Documentation, platform trail, financial consequence. The guests emerged 40 minutes later looking confused. The late fee was upheld. Your next guests got a sincere apology and a small discount."},
+  {text:"Begin shouting through the letterbox, escalating in volume every five minutes.",pts:-1,fb:"Gerald (different property, he gets around) has filmed you shouting into a letterbox. It's on the neighbourhood Facebook group. Janet has commented 'Wow.' You got the guests out though."}
+]},
+
+// ── GROUP B: Subtler scenarios ──────────────────────────────────────────────
+
+{id:"superhost1",title:"The Superhost Badge is Slipping",
+text:"You've just dropped to 4.74 stars — one decimal below the Superhost threshold. Of your last six reviews, four are glowing. One complains about a stiff bedroom window. One mentions the kitchen lighting was 'a bit dim for cooking.' You are now considering responding at length to all six reviews to show the algorithm what a thoughtful host you are.",
+choices:[
+  {text:"Respond at length to all six reviews, including the positive ones. Engagement is everything.",pts:-1,fb:"A string of earnest replies to complimentary reviews reads as anxious, not engaged. Future guests find it slightly unsettling. The algorithm did not notice. Also: fix the window."},
+  {text:"Fix the window latch and put a better bulb in the kitchen. Respond briefly and professionally to only the two critical reviews.",pts:2,fb:"The operational fix is what matters. A short, factual response to criticism signals competence. Demonstrating competence is how you recover Superhost status — not performing it."},
+  {text:"Contact the platform and request removal of the two negative reviews on the grounds that they are 'disproportionate.'",pts:-2,repeat:true,fb:"A stiff window is not grounds for removal. You've triggered a review audit, irritated a support agent, and your account now has a flag on it. The window is still stiff."},
+  {text:"Lower your nightly rate to attract more bookings and statistically dilute the bad reviews.",pts:0,fb:"Plausible in theory. In practice you've cut your margin, attracted price-sensitive guests who definitely notice dim kitchen lighting, and the window is still stiff. Net result: probably neutral at best."}
+]},
+
+{id:"pricing1",title:"A Very Large Event Is Coming to Town",
+text:"A major music festival is being held two miles from your property next month. Three nights. You currently have those nights unbooked at your standard £85/night. Comparable properties are already listing at £280–£340 per night for the same dates.",
+choices:[
+  {text:"Raise your price to £340 immediately to match the top of the market.",pts:0,fb:"You matched the ceiling and sat unbooked for three weeks before panicking the night before. You got £180 on the last night. Strategic pricing requires timing and an honest read of where you sit in the market."},
+  {text:"Leave the price as it is. Gouging feels wrong and someone nice might book at the normal rate.",pts:-1,fb:"Someone very nice booked it at £85. They told all their friends what a bargain it was. You left approximately £600 on the table for reasons that were entirely sentimental and will not pay your mortgage."},
+  {text:"Research where your property sits relative to comparables, set a price around 15% below mid-market, update your photos to highlight proximity to the venue, and book it two to three weeks out.",pts:2,fb:"This is how yield management actually works. You're not the cheapest, not the most expensive — you're the obvious choice. Booked within a week at £240/night. Three nights. That's £720 you nearly left on a doormat."},
+  {text:"List at £85 but add a £200 'festival surcharge' as a separate fee.",pts:-2,repeat:true,fb:"Hidden fees are flagged by the platform algorithm, penalised in search ranking, and cause immediate checkout abandonment. You've also broken platform pricing rules. The listing is suppressed. Well done."}
+]},
+
+{id:"communication1",title:"The Guest Who Asks Questions About Everything",
+text:"You have a guest arriving in four days who has sent 23 messages asking about: the Wi-Fi password, mattress firmness on 'the European scale', the washing machine brand, whether the tap water is treated, which direction the windows face, and whether there is a specific drawer for 'small items.' They are not alarming. Just extremely thorough.",
+choices:[
+  {text:"Answer every question in exhaustive detail immediately. You are nothing if not thorough.",pts:0,fb:"You spent 90 minutes on this. They will still arrive and ask where the small-items drawer is in person. This was fine but inefficient and sets a precedent that you are available for unlimited correspondence."},
+  {text:"Answer the practical questions concisely, then send a comprehensive pre-arrival guide covering the property in full — and politely note that everything they need will be in there.",pts:2,fb:"A pre-arrival guide is something experienced hosts should have anyway. You've answered everything, created a reusable asset, and subtly communicated that the inbox is for urgent matters only. This guest left 5 stars and praised your 'extraordinary attention to detail.'"},
+  {text:"Stop replying. They'll figure it out when they arrive.",pts:-1,fb:"Your response time has now dropped below the platform's responsiveness threshold. Your search ranking has been quietly penalised. And they will message again — except now with a tone."},
+  {text:"Report the messages to the platform as harassment.",pts:-2,repeat:true,fb:"Asking about mattress firmness is not harassment. The platform's trust team has reviewed your report and is now reviewing you. This was a spectacular misuse of the dispute system."}
+]},
+
+{id:"insurance1",title:"The Nespresso Has Gone Missing",
+text:"After checkout you notice your Nespresso machine — a decent one, £180 — is no longer in the kitchen. The guests left a glowing 5-star review and a note saying they 'accidentally packed it' and will 'sort something out.' It has been five days. They are still responding to messages, but with increasing vagueness.",
+choices:[
+  {text:"Keep messaging every two days. They said they'd sort it. Give them the benefit of the doubt.",pts:-1,fb:"It has now been three weeks. They've stopped responding. The platform's claim window has closed. The Nespresso is gone. Your patience was admirable and completely useless."},
+  {text:"Raise a formal missing item claim through the platform's resolution centre with the value and a purchase receipt, within the claim window.",pts:2,fb:"Correct — and this is the one most people get wrong because the guest seems so friendly. The claim window is typically 14 days post-checkout. You raised it on day six. The guest paid. You kept the 5-star review. The Nespresso was replaced."},
+  {text:"Leave them a 1-star review describing what happened in detail.",pts:0,fb:"The review is accurate and cathartic. It also didn't recover the machine, and they've left a 2-star retaliatory review claiming the flat smelled 'vaguely of ambition.' Your average has dipped."},
+  {text:"Use the address from the booking details to go and collect it yourself.",pts:-2,repeat:true,fb:"Using personal data from a booking for purposes beyond the stay is a GDPR violation. You've also shown up uninvited at someone's house over a coffee machine. They've reported you to the platform and the Information Commissioner's Office. Over a Nespresso."}
+]},
+
+{id:"maintenance1",title:"The Boiler Has Chosen Its Moment",
+text:"It is Sunday in January. Your guests have been in for one day of a seven-day booking. The boiler has stopped. It is 4°C outside. The guests message: 'No heating or hot water, just so you know 🌡️' They have not complained or threatened anything. They are being extraordinarily reasonable about this.",
+choices:[
+  {text:"Message back: 'So sorry! I'll get someone out first thing Monday.' Then go to sleep.",pts:-1,fb:"In January, 'first thing Monday' means 15 hours without heating in near-freezing temperatures. Your guests are now legally entitled to consider the accommodation unfit for purpose. The reasonable ones are becoming the unreasonable ones. Rapidly."},
+  {text:"Call an emergency plumber immediately, regardless of Sunday callout rates, and message the guests with the ETA and an offer of a partial refund for the inconvenience.",pts:2,fb:"This costs money. Sunday emergency callout rates are eye-watering. It is still the only correct answer. The guests gave you 5 stars and praised your handling of 'a small hiccup.' The partial refund was £40. The alternative was a claim for the full booking value."},
+  {text:"Suggest the guests use extra blankets and the portable electric heater from the cupboard, and you'll look at it in the morning.",pts:-2,repeat:true,fb:"Portable electric heaters as a substitute for a functioning boiler in January is not a maintenance strategy — it is a fire risk and a legal liability. The guests screenshotted your message. It features prominently in the subsequent platform dispute. 'Use a blanket' is not a policy."},
+  {text:"Offer the guests a full refund to rebook elsewhere and end the stay tonight.",pts:0,fb:"Generous and fair. The guests accepted. You're out the full week's revenue plus their rebooking costs, but you avoided the dispute. A reasonable emergency response that didn't include fixing the actual problem, which still needs fixing before Thursday."}
+]},
+
+{id:"neighbour1",title:"Janet Has Written a Letter. An Actual Letter.",
+text:"Janet, your immediate neighbour, has sent a formal handwritten letter (two pages, underlined) complaining that HomeBnb guests have propped open the communal fire door, left rubbish in the hallway, and — her word — 'loitered.' She has addressed it to you, to your managing agent (you don't have one), and to 'The Relevant Authorities.' She has not yet contacted any actual authorities. She is clearly building to something.",
+choices:[
+  {text:"Write back an equally formal letter dismissing her concerns and pointing out that your guests are paying customers with rights.",pts:-2,repeat:true,fb:"Janet has now escalated to the building management company and the local council. She had not done this before you wrote the letter. You handed her the moral high ground and the pen to write with."},
+  {text:"Ignore it. Janet writes letters about everything. This will blow over.",pts:-1,fb:"Janet does write letters about everything. This one, however, concerns genuine fire safety violations. The propped fire door is a real issue. You've missed an opportunity to look reasonable and fix something that could become a much larger problem."},
+  {text:"Visit Janet in person, acknowledge her concerns as legitimate, update your house rules and guest instructions to explicitly address communal areas and the fire door, and follow up in writing.",pts:2,fb:"This feels like overkill for a neighbourly dispute. It is not. Janet becomes an asset when handled correctly. She is now the person who texts you when guests prop the fire door. She sent a Christmas card. It was stiff but it was sent."},
+  {text:"Add a note to the welcome pack asking guests to 'be mindful of neighbours' and consider the matter addressed.",pts:0,fb:"A gesture in the right direction but with no enforcement mechanism. Guests continue to prop the fire door. Janet continues to monitor. The letter was the first warning. There will be more letters."}
+]},
+
+{id:"platform1",title:"The Platform Wants You as a 'Partner Property'",
+text:"HomeBnb has offered you 'Partner Property' status: a badge, priority placement in search results, and inclusion in promotional campaigns. In return: instant booking enabled with no manual guest approval, a 90% acceptance rate requirement, and you must agree to their 'Guest Guarantee' scheme which can result in automatic refunds without your prior consent.",
+choices:[
+  {text:"Accept immediately. Priority search placement. You'd be mad not to.",pts:0,fb:"Not wrong, but you've accepted without reading the Guest Guarantee clause. You will discover what 'automatic refunds without prior consent' means during your first disputed checkout. It will not be a small sum."},
+  {text:"Decline. You're not surrendering manual guest approval under any circumstances.",pts:-1,fb:"Manual approval is useful but it's not worth the trade-off for most hosts. You've turned down a search ranking boost because you wanted to vet guests — which your house rules and security deposit largely handle anyway."},
+  {text:"Accept, but first read the Guest Guarantee terms in full, configure instant booking to apply only to guests with verified profiles and positive history, and update your security deposit to provide documentation cover against automatic refund decisions.",pts:2,fb:"This is the answer that requires the most thought and is therefore the correct one. You took the visibility boost, mitigated the main risk, and read the small print. Your ranking improved. You had one disputed refund. It was resolved in your favour because your documentation was immaculate."},
+  {text:"Reply asking if you can have the badge without the obligations.",pts:-2,repeat:true,fb:"They said no. You are now marked as 'unresponsive to partner outreach' in their internal system. Also, the badge isn't separate from the obligations. That is the entire point of the badge."}
+]},
+
+{id:"longterm1",title:"A Very Charming Guest Wants to Stay for Three Months",
+text:"A guest — impeccable reviews, pleasant messages, works remotely — has asked about a 90-day stay. They're offering to pay weekly in advance and would like a slight rate reduction. This would give you guaranteed income for the quarter. They mention they'd love to 'treat it like home' and ask whether they can put up 'a few things.'",
+choices:[
+  {text:"Agree immediately. Guaranteed income for three months is a no-brainer.",pts:-2,repeat:true,fb:"In most UK jurisdictions, a guest staying longer than 28 consecutive days begins to accrue tenant's rights, regardless of what the HomeBnb booking says. You now have a tenant, not a guest. Removing them requires a formal legal process. They have put up quite a few things."},
+  {text:"Decline politely. Long stays are more trouble than they're worth.",pts:0,fb:"An overcorrection driven by general anxiety. Long stays can be extremely lucrative and perfectly straightforward. A flat refusal without exploring the structure of the arrangement is leaving real money on the table."},
+  {text:"Cap the booking at 27 days, require a fresh booking for any extension, clarify in writing that the property remains a short-term holiday let throughout, and check whether your mortgage and buildings insurance permits stays of this length.",pts:2,fb:"Correct — and the detail most people miss is the mortgage and insurance check, which could invalidate your cover entirely. The 27-day cap preserves your legal position. The guest agreed and left a review describing you as 'exceptionally organised.'"},
+  {text:"Agree but add a line in your messages saying they have 'no tenant's rights whatsoever.'",pts:-1,fb:"A message thread is not a legal instrument. Tenant's rights, where they arise, are conferred by the nature and duration of occupation — not waived by informal written agreement. Your message will not hold up."}
+]},
+
+// ── GROUP C: Additional real-life scenarios ─────────────────────────────────
+
+{id:"identity1",title:"The Guest Who Isn't Quite the Guest",
+text:"Your guest booked as 'James Harper.' The person who checked in — as confirmed by Magda who was there to hand over the keys — is not James Harper. Not even close. They said James is 'running late' and they're 'his brother.' There is no mention of a brother on the booking. They are currently inside your property.",
+choices:[
+  {text:"It's probably fine. Family help each other out. Let it go.",pts:-1,fb:"'Probably fine' is doing a lot of heavy lifting here. You have an unverified stranger in your property with no booking, no ID check, and no accountability. If anything happens — to the property or to them — you have no legal standing whatsoever."},
+  {text:"Contact the platform immediately to flag that the person who checked in does not match the booking, and ask for guidance on whether this constitutes an unauthorised guest.",pts:2,fb:"Correct. You are not overreacting. Booking platforms take identity mismatches seriously for insurance and safety reasons. The platform froze the booking pending verification. James eventually confirmed his 'brother' was actually a colleague. The booking was cancelled."},
+  {text:"Text 'James' to ask if he's on his way, while being very friendly to whoever is inside.",pts:0,fb:"A reasonable attempt to gather information while keeping the peace. 'James' confirmed he was 'nearly there' and arrived three hours later. Turns out the colleague had been asked to drop off luggage. Turned out fine. But it very easily might not have."},
+  {text:"Tell Magda to demand the person leaves immediately or you'll call the police.",pts:-2,repeat:true,fb:"You've just sent your cleaner to physically eject an unknown person from a property. Magda has handed in her notice again. The person refused to leave. You are now in a standoff that requires actual police involvement, which Magda is not equipped for. This was not her job."}
+]},
+
+{id:"access1",title:"The Guest Who Has Made a Copy of Your Key",
+text:"After checkout you discover — via your locksmith, who you called for an unrelated reason — that your lock shows signs of having been picked or copied. The locksmith is fairly certain about this. Your most recent guest was a charming person who stayed for 10 days, left a 5-star review, and mentioned they'd 'love to come back sometime.'",
+choices:[
+  {text:"Ignore it. The locksmith might be wrong and the guest was so nice.",pts:-2,repeat:true,fb:"The locksmith was not wrong. The guest has re-entered the property three weeks later while your new guests are inside. You now have a police matter, traumatised guests, and a property you cannot rent until the investigation is complete. The 5-star review feels different now."},
+  {text:"Change the locks immediately, report the suspicion to the platform with the locksmith's assessment, and add a key-return check to your checkout process.",pts:2,fb:"Correct on every count. The new lock was £180. The platform investigation found this guest had done it before at another property. You are now part of a pattern that gets them banned. Your checkout process now includes a photo of the guest returning the key. Magda approves."},
+  {text:"Change the locks and say nothing to anyone.",pts:0,fb:"You've protected the property, which is correct, but you've not flagged a potentially serial offender to the platform. They've already moved on to someone else's flat. You've done half the right thing."},
+  {text:"Message the guest to ask if they know anything about the lock.",pts:-1,fb:"They say they have no idea what you're talking about and leave a follow-up review clarifying that you've accused them of theft. Your average drops. The lock is still compromised and you haven't changed it yet."}
+]},
+
+{id:"rating1",title:"A Suspiciously Perfect New Account Wants to Book",
+text:"You have a booking request from a new account — created two days ago, no reviews, no verification badge, profile photo appears to be a stock image. They want to book your two-bedroom flat for a Friday to Sunday. They've described the trip as 'a quiet personal retreat.' It's peak season and you'd be turning down good money if you decline.",
+choices:[
+  {text:"Accept the booking. Money is money and everyone starts somewhere on the platform.",pts:-1,fb:"Everyone does start somewhere. This particular person started somewhere with a party, four large pizza boxes, and a broken mirror. Your security deposit covered some of it. Your nerves didn't recover for a week."},
+  {text:"Decline the booking without explanation.",pts:0,fb:"A safe call but a blunt one. You've avoided the risk but you've also developed a habit that, if applied too broadly, will tank your acceptance rate and hurt your search ranking. A brief message explaining your verification requirements would have been more professional."},
+  {text:"Message the guest to ask them to complete profile verification and provide a brief description of their stay before you confirm, and explain that this is standard practice for first-time guests.",pts:2,fb:"Correct. You've created a paper trail of a reasonable request. Either they verify and you have a documented guest, or they don't and you decline with cause. They verified, the stay was uneventful, and they left a review that got their account going. Good outcome all round."},
+  {text:"Accept the booking but hide all the valuables, change the WiFi password, and film a video of the property before they arrive to deter bad behaviour.",pts:-2,repeat:true,fb:"Hiding valuables is reasonable. Changing the Wi-Fi password and not telling the guests is not — it's a breach of your listed amenities. The video of you nervously filming the flat has been sent to the platform by the guest who watched you through the window on arrival. This is not a great start."}
+]},
+
+{id:"amenity1",title:"The Hot Tub Has Become a Biohazard",
+text:"Your listing advertises a hot tub. You haven't checked the chemical levels since the last guests. A guest has just messaged a photo. The water is the colour of a swamp and appears to contain something organic and floating. They have been in it. They want a full refund. They also want to know what they've been in.",
+choices:[
+  {text:"Say the hot tub always looks a bit green and it's probably fine. Offer them a discount.",pts:-2,repeat:true,fb:"You have just told someone that swamp water in a hot tub is fine and offered them a discount on a skin infection. They have screenshots. This is now a health and safety complaint, a platform dispute, and a potential public health matter. Well done."},
+  {text:"Apologise profusely, offer a full refund, arrange immediate professional servicing of the hot tub, and check whether your public liability insurance covers this.",pts:2,fb:"Correct. The hot tub should have been serviced between every guest — this was your error and you've owned it correctly. The guest accepted the refund. Your insurer noted the incident. The hot tub now has a professional maintenance schedule. This was expensive but recoverable."},
+  {text:"Offer a partial refund and claim the water 'always looks like that in photos.'",pts:-1,fb:"The water does not always look like that in photos. They have their own photos. You have now made a provably false statement in a dispute, which has not helped your position. The full refund was eventually enforced by the platform."},
+  {text:"Arrange for an emergency hot tub service but offer nothing financially while you 'investigate.'",pts:0,fb:"You've done the right maintenance thing but the financial response is inadequate for the situation. The guest escalated to the platform, got a full refund anyway, and you look like you were trying to delay. The hot tub is clean now. Your review is not."}
+]},
+
+{id:"complaint1",title:"The Noise Complaint Came From Inside the House",
+text:"You've received a noise complaint — but this time it's from your guest, about your neighbours. A couple two doors down apparently had a very loud argument at 1am on Saturday. Your guest wants a partial refund because their sleep was 'ruined.' They describe it as 'entirely your fault as host' for 'failing to ensure a quiet environment.'",
+choices:[
+  {text:"Apologise and issue a partial refund immediately. The customer is always right.",pts:-2,repeat:true,fb:"You are not responsible for the behaviour of unconnected neighbours you have no control over. You've now established a precedent that you'll pay out for anything that disturbs a guest regardless of your culpability. The next guest's complaint is about a church bell."},
+  {text:"Explain kindly but clearly that you cannot control the behaviour of independent neighbours, that the flat's listing accurately describes a residential area, and that you're sorry their sleep was disturbed but the request falls outside what you can refund.",pts:2,fb:"Correct. Empathetic, accurate, and firm. The guest grumbled but didn't escalate. You offered to provide earplugs as a welcome item going forward, which cost you £4 and is now in every welcome pack. The neighbours were also, apparently, going through a divorce. This was a one-off."},
+  {text:"Ignore the complaint. You're not responsible for your neighbours.",pts:-1,fb:"The sentiment is correct; the execution is wrong. Not responding to a guest complaint in a timely manner affects your responsiveness metric and leaves the guest feeling dismissed. A brief, empathetic explanation costs nothing."},
+  {text:"Go and knock on the neighbours' door to ask them to keep it down on behalf of your guest.",pts:0,fb:"Bold. They were not pleased. The argument resumed 20 minutes later. But the gesture was noted by your guest, who gave you 3 stars but acknowledged you 'tried.' You have now also entered into a difficult relationship with the couple two doors down."}
+]},
+
+{id:"deposit1",title:"The Security Deposit Is Not Enough",
+text:"Your guests have left. The damage includes: one broken wardrobe door (£95), a burn mark on the kitchen worktop (£180), and a television that no longer functions (£350). Your security deposit is £150. The platform's damage claim process can go beyond the deposit but requires strong documentation. You have before/after photos for the wardrobe and the TV but not the worktop.",
+choices:[
+  {text:"Claim only for the wardrobe and TV since those are the documented damages. Chase the worktop separately via a message to the guest.",pts:2,fb:"Correct. You claim what you can evidence, and separately request the worktop cost with a photo taken immediately (late evidence is better than none). You recovered £445 of the £625 in damages. The lesson is that worktops now feature specifically in your pre-check-in photo sequence."},
+  {text:"Claim for all three damages through the platform and hope they don't ask for worktop evidence.",pts:-1,fb:"They asked for worktop evidence. The worktop claim was declined. Your credibility on the other two was also questioned because you'd filed a claim with known gaps in documentation. You recovered less than you would have with the selective approach."},
+  {text:"Forget it. It's not worth the stress for £625.",pts:-2,repeat:true,fb:"You've written off £625, which represents more than four nights of income at your current rate. This is the mindset that means your property slowly deteriorates to the standard of a student house. It is absolutely worth the stress. That is literally what the resolution centre is for."},
+  {text:"Leave the guests a 1-star review immediately, then figure out the claim.",pts:0,fb:"The review is your right but doing it before the claim is resolved creates a retaliatory review dynamic. The guests gave you 2 stars and claimed the 'wardrobe was already broken.' The claim was still upheld, because you had photos. But the review situation was messier than it needed to be."}
+]},
+
+{id:"checkin1",title:"The Guests Have Arrived Early. Very Early.",
+text:"It is 8:47am. Your checkout time for the previous guest is noon. Your next guest was not due until 3pm. They have turned up at your property regardless, with four suitcases, and are now standing in the lobby messaging you to say they 'couldn't wait to get in.' The previous guests are still asleep upstairs. Magda is not available.",
+choices:[
+  {text:"Tell them to go to a café until 3pm. You'll message when the property is ready.",pts:2,fb:"Correct — clear, direct, and not your fault. You offered to store their luggage locally. They were irritated but complied. The property was ready at 2:30pm, you let them in early, and they left a perfectly reasonable review. Hold your line, Susan."},
+  {text:"Call the previous guests and ask them to leave immediately because new guests have arrived.",pts:-2,repeat:true,fb:"You have just informed your current guests that you are evicting them two hours early because you failed to manage your diary. They refuse. The new guests are still in the lobby. The previous guests are now wide awake and very unhappy. You have two sets of furious guests and one property."},
+  {text:"Apologise profusely and offer the new guests a refund on their first night.",pts:-1,fb:"A refund for a problem entirely caused by your guests' failure to read the check-in time is not appropriate. You've taught them that arriving at 8:47am is a financially rewarded activity. Your next review will mention the 'lovely welcome gesture.'"},
+  {text:"Try to secretly do a rapid clean of one room so the new guests can at least leave their bags somewhere.",pts:0,fb:"Logistically impossible given that the previous guests are still in the flat. You've also attempted to enter a property with sleeping guests without notifying them. Mercifully, the previous guests were up by the time you arrived. The new guests got their bag room. Nobody got hurt. This time."}
+]},
+
+{id:"housemanual1",title:"The Guest Who Did Not Read the House Manual",
+text:"Your house manual is extremely thorough. It covers the boiler, the recycling, the parking permit, the trick with the bathroom tap, and the fact — clearly stated in bold — that the key box code changes after every stay. The guest is locked out. They did not read the manual. They have texted you seventeen times in 11 minutes. It is 11:30pm.",
+choices:[
+  {text:"Ignore the messages until morning. The manual was very clear.",pts:-2,repeat:true,fb:"A guest locked out at 11:30pm with no response from their host constitutes an abandoned booking under the platform's terms. By morning, the guest has found a hotel, filed a complaint, and you are responsible for their alternative accommodation costs. The manual being clear does not make this your guest's problem to solve alone."},
+  {text:"Send them the code immediately and apologise for any confusion.",pts:2,fb:"Correct response to an operational emergency. You then asked the platform to message them the documentation confirmation that the code was available in the welcome email from the start. No refund was appropriate and none was requested. Everybody slept. You added the code to the first line of the check-in message."},
+  {text:"Send them the code but add 'It is in the house manual — please read it for the rest of the information you'll need during your stay.'",pts:0,fb:"You resolved the immediate crisis, which is the most important thing. The passive-aggressive reminder was not necessary and was noted in their review as 'slightly unwelcoming.' Correct outcome; poor execution."},
+  {text:"Call them to walk through the code step by step, then send a polite follow-up asking them to review the manual for future reference.",pts:0,fb:"Both options 0 and 2 are defensible here — the call is kind but unnecessary. This answer gets 0 for wasting everyone's time on something a text message resolves equally well at 11:30pm. The call woke up your partner. That's not a review concern, it's just a fact."}
+]},
+
+{id:"aircon1",title:"The Air Conditioning Is Allegedly 'Broken'",
+text:"A guest has messaged to say the air conditioning 'doesn't seem to be working.' They want someone out immediately. It is Tuesday in August. You know from your own experience that the air con unit requires approximately 15 minutes to reach operating temperature and has a non-obvious start sequence involving holding a button. You have explained this in the manual. Under 'A' for 'Air Conditioning.'",
+choices:[
+  {text:"Send the start sequence instructions by message with clear step-by-step directions.",pts:2,fb:"Correct and proportionate. They confirmed it worked within 20 minutes. No engineer required, no refund requested, no drama. This is what house manuals are for. You also added a laminated card to the unit itself. Magda laminated it. She did a very good job."},
+  {text:"Book an engineer immediately. Better safe than sorry.",pts:-1,fb:"The engineer arrived, pressed the button, charged £85 for a callout, and left. The guest thought this was hilarious. You did not. There was no fault. There was a manual. Under 'A.'"},
+  {text:"Tell the guest the air conditioning works fine and they should read the manual.",pts:-2,repeat:true,fb:"Your message was screenshot and posted to a travel forum under the heading 'Worst host responses.' The air conditioning was, in fact, working fine. But 'read the manual' as a response to a guest complaint is not a guest experience strategy. It is a review killer."},
+  {text:"Offer to come over and show them in person.",pts:0,fb:"Kind but wildly inefficient. You drove 25 minutes to press a button. The guest appreciated the personal service and left 5 stars. Your evening did not appreciate anything. Send the instructions first, Susan. Always send the instructions first."}
+]},
+
+{id:"council1",title:"The Council Has Written to You",
+text:"A letter has arrived from the local council. Your property is in an area where short-term lets require a licence under new local authority regulations that came into force three months ago. You were not aware of this. The letter says you may have been operating without a licence and requests confirmation of your situation within 14 days. You have currently had 6 bookings since the regulations came into force.",
+choices:[
+  {text:"Ignore the letter. It'll sort itself out and you're very small and they have bigger fish to fry.",pts:-2,repeat:true,fb:"The council has not bigger fish to fry. They have followed up with an enforcement notice, a £2,500 fine, and a requirement to cease operating until licensed. The 14-day window was a very generous invitation to resolve this painlessly. You declined it."},
+  {text:"Reply to the council immediately, confirm you were unaware of the regulations, pause new bookings, and apply for the licence as quickly as possible.",pts:2,fb:"Correct. The council's tone softens considerably when hosts respond promptly and in good faith. The licence was processed within six weeks. The fine for the unlicensed period was reduced to a formal warning given your immediate cooperation. You updated your listing with the licence number. Very professional."},
+  {text:"Ask a local Facebook group whether anyone else has had this letter and what they did.",pts:-1,fb:"Nine people have had this letter. Four ignored it (they've since been fined). Three applied for the licence immediately (correct). One is 'consulting a solicitor' (expensive). One said 'just ignore it they can't do anything' (they have been fined). The Facebook group has given you data. It has not given you a licence."},
+  {text:"Remove your listing from the platform temporarily while you work out what to do.",pts:0,fb:"Taking the listing down stops the clock on unlicensed operation, which is operationally sensible. It doesn't engage with the council's letter, which still needs a response within 14 days. Half a right answer."}
+]},
+
+{id:"tip1",title:"The Guest Has Left Cash. A Lot of Cash.",
+text:"Your guests have checked out. Left on the kitchen table is a thank-you note and what appears to be £400 in cash. The note says 'thank you for a wonderful stay, a small token of appreciation.' You had a perfectly standard booking at your normal rate. Nothing about the stay was unusual. Nothing about this amount of cash as a tip is normal.",
+choices:[
+  {text:"It's a tip. You've earned it. Put it in your pocket and say nothing.",pts:-2,repeat:true,fb:"You've just accepted £400 in cash of unknown origin with no record, no receipt, and no questions asked. A tax inspector would have questions. The platform also has questions, because the guest has since disputed their booking claiming they 'accidentally left personal property' at the address. You have that property."},
+  {text:"Message the guest to confirm the cash was intentionally left as a tip and to thank them.",pts:2,fb:"This seems like overkill until you realise you now have a written record that the money was a gift, not a dispute. The guest confirmed it warmly. You declared it as income (yes, you have to). And the whole thing is documented should anyone ever ask. Which they won't. But they could."},
+  {text:"Leave the cash exactly where it is and message the guest to say they've left some items behind.",pts:0,fb:"An abundance of caution that served you adequately. The guest said they'd left it intentionally, picked it up, then sent a bank transfer for the same amount the next day with 'thank you' in the reference. This is a better outcome actually. You have a paper trail you didn't have before."},
+  {text:"Donate it to charity. No good can come from this.",pts:-1,fb:"You donated £400 of unknown origin to charity, which is morally admirable and practically unnecessary. You now have no record of what you did with it, the guest messaged asking for it back (they'd changed their mind), and you've donated someone else's money. A complex situation of your own making."}
+]},
+
+{id:"wifi1",title:"The Guest Has Used Your Wi-Fi for Something Inadvisable",
+text:"Your internet provider has sent you a legal notice. A DMCA copyright infringement claim has been filed against your IP address for illegal downloading of four films during the date range of your last guest's stay. The guest has since checked out. The downloading happened on dates that precisely match their stay.",
+choices:[
+  {text:"Reply to the DMCA notice explaining that you run a short-term let and the activity was not yours.",pts:2,fb:"Correct first step. DMCA notices in short-term let situations are typically resolved at the provider level when the host can demonstrate the property was occupied by a third party on those dates. Your booking confirmation and checkout records served as evidence. No further action was taken. You also added a Wi-Fi terms-of-use clause to your house rules."},
+  {text:"Ignore the legal notice. It's not your fault.",pts:-1,fb:"It is not your fault, but ignoring a legal notice makes it significantly more your problem. Your internet provider has sent a follow-up. The guest is unreachable. You now look like the one who downloaded four films. DMCA notices have escalation paths. This one is now escalating."},
+  {text:"Immediately cancel your internet contract to remove the liability and install a fresh connection in a new name.",pts:-2,repeat:true,fb:"You have just committed what is legally considered evidence tampering in anticipation of a legal proceeding. The cancellation was flagged by your provider. You now look considerably more culpable than before, which is extraordinary given that you watched none of the films."},
+  {text:"Contact the guest to ask them to deal with it since it's their fault.",pts:0,fb:"They've blocked your number. The DMCA notice is still your provider's problem addressed to you. Contacting the guest is emotionally understandable and operationally useless. You still need to respond to the notice."}
+]},
+
+// ── GROUP D: The Massage Misunderstandings ──────────────────────────────────
+// Susan listed 'massage' as a personal interest and included a photo of her
+// massage table in the listing. This was, in retrospect, an error of judgment.
+
+{id:"massage1",title:"Mr Pemberton Has Arrived With Very High Hopes",
+text:"Your guest, Mr Pemberton (73, recently widowed, very detailed message history), has checked in. Magda has just called. Mr Pemberton has asked Magda, very politely and with a great deal of hopeful energy, whether 'the massage service' will be available this evening or whether he needs to book in advance. He appears to have brought his own towel. A very small towel. Susan, the photo of the massage table on your listing was not intended to imply what Mr Pemberton has inferred.",
+choices:[
+  {text:"Ask Magda to explain to Mr Pemberton that the massage table is for personal use only. She'll know what to say.",pts:-2,repeat:true,fb:"Magda will not know what to say. Magda has never known what to say in this situation. Magda has quit. Again. You now have a 73-year-old man with a small towel, an empty flat, and no cleaner. The listing photo is still up."},
+  {text:"Call Mr Pemberton directly, explain warmly but clearly that you are a private short-term let with no additional services, apologise for any confusion your listing may have caused, remove the massage table photo from your listing immediately, and offer him information on local spas.",pts:2,fb:"Handled with grace, speed, and a complete absence of Magda involvement. Mr Pemberton was embarrassed but charming about it. He asked if you could recommend somewhere 'reputable.' You could. He left 4 stars and mentioned the host was 'very helpful and discreet.' Remove the photo, Susan. Remove the photo."},
+  {text:"Do nothing. Mr Pemberton is a grown adult who can figure it out.",pts:-1,fb:"Mr Pemberton has not figured it out. He has asked your next-door neighbour's son — who happened to be visiting — whether he 'knows anything about the massage.' The neighbour's son is seventeen. You now have a complaint from the neighbour. Janet wrote another letter."},
+  {text:"Update your listing to explicitly say 'NO MASSAGE SERVICES PROVIDED' in large red text at the top of the description.",pts:0,fb:"Accurate, necessary, and approximately six months too late. The listing update will prevent future Pembertons but does nothing for the current one, who is still in your flat, still holding the small towel, waiting for clarification you have not provided. Call him, Susan."}
+]},
+
+{id:"massage2",title:"The Lads Have Arrived for Kyle's Big Birthday",
+text:"Six 18-year-olds have just checked in, loudly, for 'Kyle's 18th.' They have brought a birthday banner, what appears to be an industrial quantity of energy drinks, and an attitude of focused enthusiasm. Within ten minutes of arrival, the spokesperson has contacted you to ask — and you're reading this correctly — whether the 'massage service' is included in the package or whether it's an add-on, and if so, 'what are the options.' Kyle, apparently, 'deserves the best.'",
+choices:[
+  {text:"Reply: 'There is no massage service. Please refer to the house rules regarding noise and additional guests.'",pts:2,fb:"Correct, direct, and appropriately firm. They replied 'lol ok fair enough.' The party was moderately contained. Kyle celebrated his 18th without incident, except for the energy drink stain on the sofa which was claimed successfully via the resolution centre. The massage table photo has since been removed from the listing."},
+  {text:"Ignore the message. They're teenagers, they'll settle down.",pts:-1,fb:"They did not settle down. The noise complaint came in at 1:15am. Kyle celebrated his 18th comprehensively. Janet has added a third page to her ongoing letter. The unanswered message about the massage service was later read aloud at the noise mediation meeting to universal discomfort."},
+  {text:"Call the lead guest and explain in detail that you are not that kind of establishment and ask them to moderate their expectations and their volume.",pts:0,fb:"The call was effective in communicating the massage situation. It was less effective at moderating the volume. Kyle's 18th proceeded at roughly 70% of its original ambition, which was still considerable. No police. One warning from the platform. You've removed the photo."},
+  {text:"Immediately cancel the booking and ask them to leave. You don't need this.",pts:-2,repeat:true,fb:"Cancelling a guest mid-stay without platform support for a message about a massage service — however uncomfortable — is not grounds for immediate eviction. The platform has reinstated the booking, you have received a host warning, and Kyle is now legally on your property for the remainder of his birthday weekend. He is celebrating harder now."}
+]},
+
+{id:"massage3",title:"Sharon Has Questions About What You've Done to Her Son",
+text:"Your phone is ringing. You do not recognise the number. You answer. It is Sharon. Sharon is the mother of Ben, who is 28 years old, who has apparently stayed at your property last week. Sharon has seen Ben's bank statement. Sharon wants to know what 'HomeBnb — Massage Package' means. Before you can explain anything, Sharon says — and you are writing this down — 'It's disgusting, you're a dirty old woman and you just want to rub your filthy hands all over my poor boy. You should be ashamed!' She then waits. Ben is, by all accounts, a grown adult who booked a flat and has simply stayed in a property listed with a massage table photo. Ben has not told Sharon any of this. Susan, the massage table photo was a mistake. It remains, at this moment, still on your listing.",
+choices:[
+  {text:"Explain calmly and clearly that you provide short-term accommodation only, that there are no additional services of any kind, and that the payment on Ben's statement refers to his accommodation booking.",pts:2,fb:"Sharon was confused, not dangerous. She calmed down once it was explained. She apologised. She mentioned Ben doesn't tell her things. She asked if the flat was nice. It is. She left. You have removed the massage table photo from the listing. You have also updated your listing description to make it unmistakably clear that you provide accommodation and nothing else."},
+  {text:"Hang up immediately and block the number.",pts:-2,repeat:true,fb:"Sharon has not been blocked at the platform level, at the council level, or — as you're about to discover — at the Trading Standards level, where she has filed a complaint about misleading advertising. Sharon had a point about the photo. Sharon has escalated it into a formal complaint with supporting screenshots. Sharon is thorough."},
+  {text:"Explain the situation and also mention that Ben really should have called her himself, since he's 28.",pts:-1,fb:"You've correctly explained the situation and then unnecessarily involved yourself in the parenting dynamics of a woman you have never met and who has just accused you of something unspecified over the phone. Sharon has fixated entirely on the second half of your response. You are now in a different argument."},
+  {text:"Tell Sharon you're happy to have Ben's booking details shared with her if she can verify who she is.",pts:0,fb:"A reasonable instinct toward data protection that unfortunately sounds, in context, extremely suspicious. Sharon's interpretation of 'I'll need to verify your identity before I share details about your son's stay with you' was not favourable. The explanation came eventually and worked, but the journey there was bumpier than it needed to be."}
+]},
+
+{id:"massage4",title:"The Wellness Retreat Booking",
+text:"A group of four has booked your property for a long weekend, specifically noting in their booking message that they 'love that you're into wellness and massage — we're doing a full holistic retreat and your space looks perfect.' You have a photo of a massage table on your listing. They are arriving tomorrow. They have asked whether you can 'set up the space' before they arrive and whether 'your massage experience' is available during the booking.",
+choices:[
+  {text:"Reply warmly that you're delighted they chose your space and that you'll make sure everything is ready for their retreat.",pts:-2,repeat:true,fb:"You have just confirmed, via implication, that you will be providing massage services and that the space will be set up for a holistic retreat. They arrive to find a normal flat. They request a full refund on grounds of 'misrepresentation of services.' The platform agrees with them. The massage table photo remains on the listing."},
+  {text:"Reply before they arrive to clarify that you provide accommodation only and that no massage services are included, apologise clearly for any confusion the listing photo may have caused, and offer to cancel the booking for a full refund if the property doesn't suit their needs.",pts:2,fb:"Correct. You've caught it before arrival — far easier to resolve than after. They opted to stay anyway ('the space is still lovely') and had a perfectly nice retreat doing whatever it is retreat people do. They asked if they could bring their own massage table. You said yes. They left 5 stars. You removed the photo."},
+  {text:"Ignore the message until they arrive and explain in person.",pts:-1,fb:"They arrived with candles, crystals, a sound bath bowl, and very specific expectations. The in-person explanation went badly. The refund negotiation went worse. There is a sound bath bowl still somewhere in your property. You are not sure where."},
+  {text:"Remove the massage table photo from the listing right now, before they arrive, but say nothing about it.",pts:0,fb:"You've fixed the root cause, which is excellent, but you haven't managed the incoming guests' expectations. They still arrive expecting massage services because you confirmed nothing to the contrary. Removing the photo helps future guests. It does not help tomorrow's."}
+]},
+
+// ── GROUP E: Further real-life scenarios ────────────────────────────────────
+
+{id:"dispute2",title:"The Guest Claims They Found a Hidden Camera",
+text:"A guest has sent an urgent message claiming they found a hidden camera in the bedroom. They've described it as 'a small black device near the smoke detector.' You do not have any cameras in your property. You do have a smart smoke detector with a small LED indicator light. It is not a camera.",
+choices:[
+  {text:"Tell them it's just the smoke detector and to stop being paranoid.",pts:-2,repeat:true,fb:"The guest has now called the police, who attended, confirmed it was a smoke detector, and filed a note anyway because these calls always get noted. The platform has been informed, your listing is suspended pending investigation, and the phrase 'hidden camera' is now associated with your property in their system. 'Just the smoke detector' was not the right register."},
+  {text:"Take the guest's concern completely seriously, explain what the device is, offer to video call to walk them through the smoke detector together, and contact the platform to document that you've proactively addressed a guest safety concern.",pts:2,fb:"Correct tone, correct actions. The video call resolved it in four minutes. The platform noted your proactive response positively. The guest felt heard, confirmed the device was as you described, and left a review praising your 'exceptional communication.' A potential nightmare, professionally defused."},
+  {text:"Apologise unreservedly and offer a full refund if they want to leave.",pts:-1,fb:"An apology suggests culpability. You have done nothing wrong. The guest accepted the refund offer, left, and the platform is now trying to understand what you're apologising for. 'Reinstating a stay a guest left voluntarily after the host apologised' is a fun sentence to explain to a support agent."},
+  {text:"Drive to the property to show them in person that it's just a smoke detector.",pts:0,fb:"Effective but inefficient. You proved the point. The guest was embarrassed. You spent two hours driving for something a video call would have resolved. The guest gave you 4 stars and wrote 'host was very responsive.' True. Unnecessarily so."}
+]},
+
+{id:"dispute3",title:"Two Guests Are Fighting. In Your Flat.",
+text:"Magda has called. She can hear shouting inside the flat and has chosen — wisely — not to knock. She can confirm there are two guests, both of whom are on the booking. They are arguing, audibly, about a relationship. It does not sound violent but it does sound escalating. She is standing in the corridor. She looks forward to your guidance.",
+choices:[
+  {text:"Tell Magda to knock and ask if everything is okay.",pts:0,fb:"Magda knocked. Everything is emphatically not okay but the guests said it was. The argument paused while they addressed Magda. It resumed when she left. She has sent you an audio recording of the corridor. You didn't ask for this but she thought it might be useful."},
+  {text:"Tell Magda to leave and not to get involved. It's a private matter between guests.",pts:-1,fb:"Magda left. The argument escalated. Janet called the police. The police attended. Nobody was hurt. But your property now has a 'domestic incident' on its address record, which your insurance company would like to discuss."},
+  {text:"Contact the platform to flag the situation as a welfare concern so there is a record, while instructing Magda to call 999 only if she hears anything that sounds physically dangerous.",pts:2,fb:"Correct proportional response. You've documented the concern without escalating it unnecessarily. Magda was given clear, manageable instructions. The argument resolved itself within the hour. The guests left at checkout, did not mention any of this, and left 3 stars for 'atmosphere.' The platform record protects you if anything is ever claimed."},
+  {text:"Message the guests directly to say you're aware they're having a difficult time and to ask if everything is okay.",pts:-2,repeat:true,fb:"You have just informed two people in the middle of a private argument that they are being monitored. Both guests have now separately complained to the platform that you are surveilling them through the walls. Magda is implicated. Magda is unhappy about this. This is not what she signed up for."}
+]},
+
+{id:"listing1",title:"Your Listing Has Been Flagged as 'Potentially Misleading'",
+text:"The platform has sent you a notification: your listing has been automatically flagged because the number of rooms mentioned in your description (4) does not match the number of rooms in your photos (3). Your property has 3 rooms. You wrote 4 in the original listing by mistake two years ago. Nobody has complained about this specifically, but the platform wants you to correct it within 7 days or your listing may be suppressed.",
+choices:[
+  {text:"Correct the number immediately, update any related descriptions to be accurate, and confirm the correction to the platform within the 7-day window.",pts:2,fb:"Correct and swift. The flag was cleared within 24 hours. No suppression, no penalty. The listing is now accurate for the first time in two years. Several guests had clearly noticed but said nothing. You have also re-read your entire listing description and found two other inaccuracies. You have corrected those too."},
+  {text:"Ignore it. The platform flags things all the time and nobody has ever complained.",pts:-2,repeat:true,fb:"On day 8, your listing is suppressed. Bookings stop. You contact support. They explain the 7-day window. You ask for an exception. There is not one. You correct the error. The listing is reinstated after a further review period of 5 business days. You have lost approximately 13 days of visibility in peak season."},
+  {text:"Add a fourth 'room' to your listing — the bathroom technically counts as a room, right?",pts:-1,fb:"The bathroom does not technically count as a room in hospitality listings. The platform's automated system has now flagged 'misleading room count' AND 'inaccurate amenity description' as two separate issues. Your 7-day window has been reduced to 3 days because this is your second flag."},
+  {text:"Contest the flag on the grounds that the hallway could reasonably be considered a room.",pts:-1,fb:"The support agent has considered your hallway. The support agent does not consider your hallway to be a room. The flag stands. You now have 5 days left in your window and have spent two of them arguing about a hallway."}
+]},
+
+{id:"tax1",title:"HMRC Has Sent You a Letter",
+text:"A letter from HMRC. They're aware you've been earning income from short-term lets (platforms share data now) and they'd like you to confirm whether you've been declaring this income correctly on your self-assessment tax return. You have not been filing a self-assessment tax return. You have been treating the income as 'extra cash.' You have been doing this for three years.",
+choices:[
+  {text:"Ignore the letter. You're very small. They won't bother.",pts:-2,repeat:true,fb:"HMRC has bothered. They have issued an estimated tax demand based on their platform data, plus interest, plus a penalty for non-disclosure. The estimated amount is wrong but the penalty structure is accurate. You needed an accountant from the very beginning. You now need a specialist accountant and possibly a solicitor."},
+  {text:"Contact an accountant immediately, disclose everything, use HMRC's voluntary disclosure process to get ahead of it, and register for self-assessment.",pts:2,fb:"The voluntary disclosure process exists precisely for this. An accountant costs money but far less than HMRC penalties applied without mitigation. The tax owed was real but manageable. The penalties were reduced significantly for voluntary disclosure. You now file self-assessment and have discovered the Rent-a-Room relief scheme, which you should have been using from the start."},
+  {text:"Write back to HMRC saying you didn't know you needed to declare it.",pts:-1,fb:"'I didn't know' is not a defence against tax liability. It is a mitigating factor that may reduce penalties slightly. HMRC has noted your response and issued a formal enquiry. You still need an accountant. You should have called one before writing to HMRC."},
+  {text:"Declare only the income from the past 12 months and hope they're satisfied.",pts:-1,fb:"Selective disclosure is worse than full disclosure and better than nothing. HMRC has cross-referenced three years of platform data. Your partial disclosure covers one of them. They now have an inconsistency to investigate. You've made your position worse by appearing to conceal."}
+]},
+
+{id:"checkout2",title:"The Guests Have Reported Bedbugs",
+text:"A guest has messaged, with photos, claiming to have found bedbugs in the mattress. The photos are genuinely concerning — small brown marks consistent with bedbug activity. You had the property professionally cleaned a month ago. The previous guest left no complaints. You have absolutely no idea if this is real or a fraud attempt, which is apparently a thing.",
+choices:[
+  {text:"Call a licensed pest control specialist to inspect the property immediately, remove the mattress from service pending inspection, and communicate your response actions clearly to the guest.",pts:2,fb:"The correct response regardless of whether it's genuine or fraudulent. If genuine: you've acted responsibly and have documentation. If fraudulent: you have documentation of your professional response and the pest controller's clearance report, which the platform accepts as evidence. Either way, this is resolved. The inspector found no bedbugs. The mattress was reinstated. You have a pest control certificate."},
+  {text:"Tell the guest that bedbugs are impossible since you had a clean a month ago and ask them to prove it.",pts:-2,repeat:true,fb:"'Prove it' is not a guest communications strategy. The guest has already proved it with photos which they are now sharing on a travel forum. Your listing name is now searchable alongside the word 'bedbugs.' The platform is very interested in your response message."},
+  {text:"Offer a full refund immediately to make it go away.",pts:-1,fb:"You've financially validated an allegation you haven't investigated. The pest controller you eventually hired found nothing. You've refunded £320 for bedbugs that were not there and have no documentation. The guest's photos remain unaddressed. Future guests who search your listing will find a refund issued for a bedbug complaint."},
+  {text:"Ask the platform to investigate and do nothing in the meantime.",pts:0,fb:"The platform investigation takes four days, during which time the guest is still in your property — with alleged bedbugs — and you've taken no action. The platform asked why you hadn't called pest control. Good question, Susan. Good question."}
+]},
+
+
+{id:"diy1",title:"The Guest Has Attempted Some DIY",
+text:"Your checkout photos — taken by Magda, who deserves a raise — show that a guest has, during their four-night stay, attempted to 'fix' your bathroom cabinet door with what appears to be a combination of wood glue, a nail, and something that might be a cheese knife. The cabinet is now worse than before. But they've left a note saying 'sorted the cabinet, you're welcome.'",
+choices:[
+  {text:"Reply: 'Thank you so much! Very kind of you.' And leave it at that.",pts:-1,fb:"You have now thanked someone for making your cabinet worse and have no grounds for a damage claim because you've explicitly expressed gratitude. The cheese knife is still in the hinge. A joiner charges £120 to undo the repair."},
+  {text:"Document the damage with photos, get a quote from a joiner for the correct repair, and raise a resolution claim for the cost of remediation minus any goodwill acknowledgement that they meant well.",pts:2,fb:"Correct. Intent is irrelevant to a damage claim — the cabinet needs fixing regardless of the note. The claim covered the joiner's fee. You replied to the guest acknowledging their kind intention while explaining that unauthorised repairs create liability issues. They apologised. The note was charming. The claim was valid."},
+  {text:"Fix it yourself with some wood glue. Two can play at this game.",pts:0,fb:"Your repair is better than theirs, which is not saying much. The cabinet functions approximately correctly. You've spent a Sunday afternoon on someone else's enthusiastic mistake and recovered nothing financially. The cheese knife is yours now. You found it in the hinge."},
+  {text:"Add 'please do not attempt repairs' to your house rules and say nothing more.",pts:-2,repeat:true,fb:"Adding a rule retroactively does not repair a cabinet. The guest has now left a review saying the host was 'cold and ungrateful despite all we did for them.' You have no claim filed. You have a broken cabinet, a bad review, and a rule that should have been there already. The cheese knife is still in the hinge."}
+]},
+
+{id:"cleaner1",title:"Magda Has Discovered Something in the Wardrobe",
+text:"Magda has called. She has found, in the wardrobe of the main bedroom, what she describes as 'a significant quantity of a leafy material in zip-lock bags, a set of small scales, and a laminated price list.' The guests checked out this morning. The laminated price list is very professionally done. Magda wants guidance. Magda is not going to touch it.",
+choices:[
+  {text:"Tell Magda to throw it all away discreetly and don't mention it to anyone.",pts:-2,repeat:true,fb:"Magda has thrown away what is now established evidence in a drug supply investigation. You have both tampered with evidence and failed to report found contraband. The guests were already under surveillance. The police have visited the property. Magda is involved. Magda is not happy about being involved."},
+  {text:"Tell Magda to leave the property immediately without touching anything, and call the non-emergency police line to report found property of illegal nature.",pts:2,fb:"Correct. Magda left. You called. The police attended within two hours, were thorough and professional, and confirmed you had no culpability as a host acting in good faith. The property was cleared and released within 24 hours. You have added 'no illegal substances' to your house rules, which you should have had already."},
+  {text:"Tell Magda to photograph it and send the photos to you before doing anything.",pts:0,fb:"Magda photographed it. The photos are now on Magda's phone. You now both have photos of drug paraphernalia of uncertain legal significance. You eventually called the police, who were satisfied with your account but less satisfied with the photographs on Magda's phone, which required some explanation."},
+  {text:"Message the guest to say they've left some items behind and ask if they'd like to collect them.",pts:-1,fb:"You have just informed a drug dealer that you have found their inventory and are holding it for collection. They did not reply. You have now been in possession of illegal substances for 48 hours while waiting for a message response. Call the police, Susan. This is what the police are for."}
+]},
+
+{id:"parking1",title:"Your Guest Has Received a Parking Fine in Your Parking Space",
+text:"A parking fine notice has been forwarded to you for a vehicle parked in your allocated resident's space during your last guest's stay. The vehicle is not your guest's vehicle. Someone else parked there, and the fine — issued to the space, not the vehicle — has arrived in your name. It is for £85.",
+choices:[
+  {text:"Pay the fine. It's easiest.",pts:-1,fb:"It is easiest. It is also incorrect. You were not the offending driver, you did not park the offending vehicle, and paying the fine without appeal establishes a payment record. You've spent £85 because admin felt like too much effort."},
+  {text:"Appeal the fine with evidence that the space was occupied by an unrelated vehicle during your guest's stay, provide the booking dates and your guest's vehicle registration, and formally contest the notice.",pts:2,fb:"Correct. The fine was overturned. The appeal took 20 minutes to write and cost nothing. You've also now established that your parking space needs a visible 'Reserved' sign and a method for guests to report unauthorised occupants. You've ordered both. The £85 remains yours."},
+  {text:"Ignore it. Parking fines escalate when ignored but you'll deal with it then.",pts:-2,repeat:true,fb:"The fine has escalated to £170. Then to a debt collection notice. Then to a court summons because you missed the escalation window. You are now defending a parking fine in court for a car you never parked, for £85 that is now costing you £340 plus time. Appeal, Susan. Always appeal."},
+  {text:"Contact your guest to ask if they know whose car it is.",pts:0,fb:"They don't know. Nobody knows. The car has vanished. You've spent three days in a thread of confusion about a mystery vehicle and still have the fine. The appeal process was always the right answer."}
+]},
+
+{id:"smoking1",title:"Someone Has Smoked in Your No-Smoking Property",
+text:"Your listing states very clearly: strictly no smoking. Magda has called. The entire flat smells strongly of cigarettes. The curtains, the sofa, and — impressively — the inside of the fridge all smell of cigarettes. The guest left a 5-star review 40 minutes ago. The review praises the 'cosy atmosphere.'",
+choices:[
+  {text:"Accept the 5-star review gratefully and open the windows. It'll air out.",pts:-2,repeat:true,fb:"It has not aired out. Your next guests arrive to a property that smells like a 1987 pub and leave a 1-star review about 'undisclosed smoking odour.' You had 14 days from the previous checkout to file a damage claim for professional deodorising. That window has now closed. The 5-star review remains. Cold comfort."},
+  {text:"Immediately raise a damage claim for professional deodorising and deep cleaning of soft furnishings, with Magda's contemporaneous report as evidence, before responding to the review.",pts:2,fb:"Correct order of operations. Claim first, review second. You recovered £180 in cleaning costs. Your response to the 5-star review thanked them warmly while noting that you hoped they enjoyed the property's fresh-air policy going forward. Very measured. Very Susan-at-her-best."},
+  {text:"Reply to the 5-star review saying 'thank you for the kind words, though we note the strict no-smoking policy was not observed during this stay.'",pts:-1,fb:"You've publicly accused a guest of a house rule violation in the review response section, which is not what review responses are for. The guest has now amended their review to 4 stars and added a note about 'hostile host communication.' Raise a claim. Don't use the review section as a disciplinary forum."},
+  {text:"Book a professional cleaning company for tomorrow and charge the cost to your own account, filing nothing.",pts:0,fb:"The flat is clean. Magda is relieved. You are £200 lighter for no reason because the resolution centre exists precisely for this situation and you chose not to use it. Correct operational outcome, completely unnecessary financial loss."}
+]},
+
+{id:"corporate1",title:"The 'Business Trip' That Wasn't",
+text:"A guest booked for a solo business trip, seven nights. Magda has confirmed via mid-stay check that there are two people in the property. This is technically a breach of the single-guest booking. Both people seem perfectly nice. The flat is clean. Nothing alarming is happening. But the booking says one person and there are two people.",
+choices:[
+  {text:"It's fine. They're nice. Let it go.",pts:0,fb:"It is, in this instance, fine. They were perfectly nice. Nothing happened. But you've now established a personal precedent that you overlook guest count discrepancies when people seem pleasant, which will serve you very poorly the next time the extra person is less pleasant."},
+  {text:"Contact the platform immediately to report an unauthorised guest and request emergency termination of the booking.",pts:-1,fb:"A second person on a single booking is a house rules violation. Emergency termination is reserved for safety or serious conduct issues. You've escalated proportionally to a parking ticket. The platform has reopened the booking and noted your response as disproportionate."},
+  {text:"Message the guest to acknowledge the discrepancy, note that your listing permits a maximum of two guests and that you're happy to accommodate both provided they accept an amended booking to reflect two guests and any associated fee.",pts:2,fb:"Correct — firm, professional, and commercially sensible. They agreed to the amended booking immediately and explained the second person was a colleague who joined last minute. You recovered the additional guest fee. The documentation is now accurate. Everyone is fine."},
+  {text:"Send Magda back to count more carefully. Maybe she miscounted.",pts:-2,repeat:true,fb:"Magda counted correctly. There are two people. Magda has now been sent back twice to establish a fact she was correct about the first time. Magda has handed in her notice. You have a two-person situation, no cleaner, and a documented pattern of doubting Magda that she finds disrespectful."}
+]},
+
+{id:"insurance2",title:"You Don't Have the Right Insurance",
+text:"While making a claim for a cracked bathroom sink — about £200 — your insurer asks you to confirm whether the property is used for commercial short-term letting. You confirm it is. There is a silence. Your insurer explains that your current home insurance policy explicitly excludes commercial short-term letting activity, and has done since you took the policy out four years ago.",
+choices:[
+  {text:"Tell them it's 'barely commercial, really more of a side thing.' See if they accept that.",pts:-2,repeat:true,fb:"They did not accept that. 'Barely commercial' is not an insurance category. Your policy has been voided retroactively, all previous claims are under review, and you have been operating an uninsured short-term let for four years. The sink remains cracked. You have larger problems than the sink."},
+  {text:"Acknowledge the situation, withdraw the claim, and immediately source a specialist short-term let insurance policy. Contact a broker today.",pts:2,fb:"Correct. The sink claim was modest. The insurance gap was catastrophic in potential. You've withdrawn the small claim to preserve the relationship, sourced specialist cover by end of week, and you now have the right insurance. Better six days late than four years wrong."},
+  {text:"Ask if you can upgrade your policy retroactively to cover short-term letting.",pts:0,fb:"This is not available, but asking politely and in good faith has at least confirmed that you now understand your position. Your insurer has provided a referral to their commercial product. You've taken out the correct policy going forward. The old claims remain under review. The sink remains cracked."},
+  {text:"Cancel your insurance immediately so they can't retroactively void anything.",pts:-1,fb:"Cancelling your insurance does not remove their right to void coverage for misrepresented activity prior to cancellation. You are now also uninsured. This decision has achieved nothing except leaving you exposed from every direction simultaneously."}
+]},
+
+{id:"review2",title:"The Guest Has Left a Review in a Language You Don't Speak",
+text:"Your newest review is five stars. You know this because of the stars. The rest of it is in a language you do not speak. You've run it through a translation app. The translation is: 'Very nice place, clean and comfortable. The host is [untranslatable word] but ultimately [untranslatable word]. We liked the [untranslatable word]. Would recommend to someone who is [untranslatable word].' The untranslatable words are worrying you.",
+choices:[
+  {text:"Leave it. Five stars. Move on.",pts:2,fb:"Correct. Five stars is five stars. The untranslatable words were, via a more sophisticated translation service, 'cautious,' 'effective,' 'kettle,' and 'organised.' You are cautious, effective, own a kettle, and are organised. This was a positive review. You worried for nothing."},
+  {text:"Reply to the review in the same language using a translation app.",pts:-1,fb:"Your translation app has rendered your response as: 'Thank you for coming to my home. I am also a person who enjoys things. Please come again when you have time for the [untranslatable word].' The guest has replied, in English, to ask what you meant. This is now a conversation."},
+  {text:"Contact the platform to ask them to remove or translate the review on the grounds that you can't verify its content.",pts:0,fb:"The platform does not translate reviews and will not remove one because the host can't read it. They've suggested a professional translation service. You've used one. The review is genuinely complimentary. You've spent £15 to discover this."},
+  {text:"Flag the review as potentially containing offensive content pending translation.",pts:-2,repeat:true,fb:"The review contained no offensive content. You have flagged a 5-star review as potentially offensive because you don't speak the language. The platform has reviewed it, found it to be a warm and positive endorsement, and has noted your flag as a misuse of the content reporting system. Your account has a flag. The review remains. It says you are cautious and own a kettle."}
+]}
+
+
+
+];  // end scenarioPool (48 items)
+
+// ═══════════════════════════════════════════════════════════════════════════
+// EMERGENCY SCENARIOS — always include all 4
+// ═══════════════════════════════════════════════════════════════════════════
+const emergencyScenarios = [
+  {id:"emerg1",title:"🚨 EMERGENCY: The Police Are at the Door",
+  text:"It is 3am. Blue lights outside. Two officers at the door of your property. They want access to search the premises in connection with an ongoing investigation. Your current guests are inside. You are standing in your kitchen at home looking at a notification.",
+  isEmergency:true,
+  choices:[
+    {text:"Call your guests and tell them NOT to let the police in under any circumstances. You pay the mortgage. This is YOUR property.",pts:-2,arrest:true,fb:"You just advised obstruction of a police investigation. You are now personally of interest to officers. Your guests let them in anyway. There is a warrant. You are interviewed under caution by 6am."},
+    {text:"Contact the platform to log the incident, do not interfere with a lawful search, and call a solicitor in the morning to understand your position.",pts:0,fb:"Saved by the skin of your teeth. The search found nothing in your flat specifically. You cooperated, you have a record of the event on the platform, and your solicitor confirmed you did exactly the right nothing."}
+  ]},
+
+  {id:"emerg2",title:"🚨 EMERGENCY: The Guest Has Sent a Legal Letter",
+  text:"A formal letter arrives, allegedly from a solicitor, claiming your property caused personal injury to a guest — a door handle 'inexplicably detached' causing a fall. They are seeking £8,000 in compensation. The letter has a very official letterhead. Your property was inspected six weeks ago and was fine.",
+  isEmergency:true,
+  choices:[
+    {text:"Reply directly, apologise, and offer £2,000 as a goodwill gesture to make it go away quickly.",pts:-2,arrest:true,fb:"Your admission and payment have legally established liability. The solicitor — who is real — escalates to £22,000 citing your own words. You needed your own legal representation from the very first second. Catastrophically wrong."},
+    {text:"Do not respond to the letter directly. Contact your public liability insurance immediately and hand the matter to them entirely.",pts:0,fb:"Saved by the skin of your teeth. Your insurer's legal team investigated. The injury claim was found to be exaggerated. You paid your excess. You learned that 'do not reply' is sometimes the most powerful response available."}
+  ]},
+
+  {id:"emerg3",title:"🚨 EMERGENCY: There's a Gas Leak",
+  text:"Your smart detector has flagged a possible gas reading at 7pm. The guests text to say they 'can smell something funny but the windows are open and it's fine.' They have also, according to the app, been using the hob. It is absolutely not fine.",
+  isEmergency:true,
+  choices:[
+    {text:"Text back: 'Probably fine, make sure there's ventilation. I'll arrange an inspection next week.'",pts:-2,arrest:true,fb:"An explosion does not occur, mercifully, but a gas engineer called by the guests discovers a significant leak. You are reported to the Health and Safety Executive for knowingly failing to act on a gas safety alert. This affects your licence to operate."},
+    {text:"Immediately call the National Gas Emergency line (0800 111 999), instruct guests to leave the property NOW without using any switches or open flames, and contact an emergency Gas Safe engineer.",pts:0,fb:"Saved by the skin of your teeth. There was a real leak. The engineer condemned the hob. The guests were evacuated in 11 minutes. You have never been more grateful for a smart detector in your life."}
+  ]},
+
+  {id:"emerg4",title:"🚨 EMERGENCY: Water Through the Ceiling",
+  text:"A text from your downstairs neighbour — Gerald, a DIFFERENT Gerald, you have somehow accumulated multiple Geralds — saying water is pouring through his ceiling from your flat. Your guests say they 'didn't notice anything.' The bath is directly above Gerald's kitchen. Gerald is standing in an inch of water. Gerald is not pleased.",
+  isEmergency:true,
+  choices:[
+    {text:"Tell Gerald that he should contact your guests directly, as it's 'between them really,' and you'll look at it on Monday.",pts:-2,arrest:true,fb:"Gerald has documented everything, called his own insurer, and issued a formal damage claim against you as the property owner. The 'look at it Monday' message is Exhibit A. Your insurer is furious. Monday was expensive."},
+    {text:"Immediately contact an emergency plumber, arrange for Gerald's damages to be logged under your buildings insurance, and get to the property or send a trusted contact within the hour.",pts:0,fb:"Saved by the skin of your teeth. The overflow valve had stuck. An hour's labour, a written apology to Gerald, and an insurance claim later, you've contained the disaster. Gerald remains watchful but satisfied."}
+  ]}
+];
+
+// ═══════════════════════════════════════════════════════════════════════════
+// FINAL BANDS — 3 bands, max score per game = 32 (16 scenarios × 2 pts)
+// ═══════════════════════════════════════════════════════════════════════════
+const bands = [
+  {
+    min:-Infinity, max:8,
+    title:"Welcome to Financial Ruin, Susan.",
+    icon:"⛓️",
+    verdict:"Let us not mince words. You have, in the space of sixteen decisions, managed to commit at least one act that a reasonable court would describe as criminal, rewarded fraud, alienated your only reliable cleaner, fallen foul of HMRC, and almost certainly received a letter from Janet about all of it. The platform has flagged your account. Your mortgage lender has been notified. Mr Pemberton still has the small towel. The future that awaits you involves a very patient solicitor, a very impatient judge, and a great deal of time to reflect on why you thought 'passive income' was going to look like this. It did not look like this."
+  },
+  {
+    min:9, max:20,
+    title:"You Got Away With It. Barely.",
+    icon:"😰",
+    verdict:"Susan. You survived. We want to be clear that 'survived' is doing a great deal of work in that sentence. You emerged from sixteen scenarios with your property technically intact, your liberty technically intact, and your rating technically above the threshold at which the platform starts asking questions. But it was close. Several times it was very close. You made the wrong call on the subtle ones, handled emotions where documentation was required, and at least once let a guest stay in a property with conditions you should have addressed immediately. Magda is on her third resignation this year. Janet is still writing. And there is, somewhere, a sound bath bowl that nobody can find. You are lucky to have your sanity. Guard it."}
+  ,
+  {
+    min:21, max:Infinity,
+    title:"Actually Rather Good, Susan!",
+    icon:"🏆",
+    verdict:"Well! Well well well. Susan, you've done it. You have navigated fraudulent claims, criminal activity, architectural emergencies, a python, a long-stay tenant trap, Mr Pemberton and his small towel, Sharon's phone call, platform small print, HMRC correspondence, and a letter from Janet — with the poise and procedural rigour of someone who has actually read their hosting agreement. And possibly a solicitor's guidance notes. You documented everything, used the resolution tools correctly, called the right emergency numbers, set your pricing with actual strategy, removed the massage table photo from your listing, and — crucially — you did not have an emotional breakdown in a text message at any point. You are the host we all aspire to be. Your property is intact, your rating is pristine, and somewhere, Magda is genuinely proud of you. Well done."
+  }
+];
+
+// ═══════════════════════════════════════════════════════════════════════════
+// STATE & SEQUENCE BUILDER
+// Per game: pick 16 regular scenarios from pool of 48 (Fisher-Yates),
+// interleave 4 emergencies after every 4th regular.
+// Total steps per game: 20 (16 regular + 4 emergency).
+// Max score: 16 × 2 = 32.
+// ═══════════════════════════════════════════════════════════════════════════
+let score=0, currentStep=0, gameSequence=[];
+
+function buildSequence(){
+  // Separate the 4 massage scenarios from the rest of the pool
+  const massageIds = ['massage1','massage2','massage3','massage4'];
+  const massagePool = scenarioPool.filter(s => massageIds.includes(s.id));
+  const regularPool = scenarioPool.filter(s => !massageIds.includes(s.id));
+
+  // Pick exactly one massage scenario at random
+  const chosenMassage = shuffle(massagePool)[0];
+
+  // Draw 15 from the remaining 44 non-massage scenarios
+  const otherDrawn = shuffle(regularPool).slice(0, 15);
+
+  // Place chosenMassage at regular-slot index 8.
+  // Sequence layout: R R R R E R R R R E R R [R=massage] R E R R R R E
+  // Regular slot 8 (0-indexed) lands at overall sequence position 13 (1-indexed) ✓
+  const regulars = [
+    ...otherDrawn.slice(0, 8),   // slots 0-7  → positions 1-8 in game
+    chosenMassage,                // slot 8     → position 13 in game
+    ...otherDrawn.slice(8, 15)    // slots 9-15 → positions 14-16 in game
+  ];
+
+  const emergs = shuffle(emergencyScenarios); // all 4, shuffled
+  const seq = [];
+  for(let i = 0; i < 16; i++){
+    seq.push({...regulars[i], type:'regular'});
+    if((i + 1) % 4 === 0){
+      seq.push({...emergs[Math.floor(i / 4)], type:'emergency'});
+    }
+  }
+  return seq; // 20 steps total
+}
+
+function updateUI(){
+  document.getElementById('scoreDisplay').textContent=score;
+  const total=gameSequence.length;
+  document.getElementById('stepDisplay').textContent=`${Math.min(currentStep,total)}/${total}`;
+  const pct=total>0?(currentStep/total)*100:0;
+  document.getElementById('progressFill').style.width=pct+'%';
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// RENDER
+// ═══════════════════════════════════════════════════════════════════════════
+function renderIntro(){
+  document.getElementById('gameArea').innerHTML=`
+    <div class="intro-card">
+      <h2>Welcome to Your Property. Good Luck.</h2>
+      <div class="divider"></div>
+      <p>You are Susan. You have listed your flat on HomeBnb because someone told you it was 'passive income.' It is not passive. Nothing about this is passive.</p>
+      <p>You will face <strong>16 hosting scenarios</strong> and <strong>4 genuine emergencies</strong> drawn from a pool of real-life hosting disasters. No two games are the same.</p>
+      <p style="font-size:.88rem;color:#888;">There are no right answers. There are wrong answers. You will find them.</p>
+      <button class="start-btn" onclick="startGame()">I Am Ready (I Am Not Ready)</button>
+    </div>`;
+}
+
+function renderStep(){
+  if(currentStep>=gameSequence.length){renderFinal();return;}
+  const scenario=gameSequence[currentStep];
+  updateUI();
+  const isEmerg=scenario.type==='emergency';
+  const shuffled=shuffle(scenario.choices);
+  window._currentChoices=shuffled;
+  document.getElementById('gameArea').innerHTML=`
+    <div class="card ${isEmerg?'emergency':''}">
+      <div class="step-counter">${currentStep+1} / ${gameSequence.length}</div>
+      ${isEmerg?'<div class="emergency-badge">⚠ EMERGENCY ⚠</div>':''}
+      <h2>${scenario.title}</h2>
+      <p class="scenario-text">${scenario.text}</p>
+      <div class="choices">
+        ${shuffled.map((c,i)=>`<button class="choice-btn" onclick="handleChoice(${i})">${c.text}</button>`).join('')}
+      </div>
+    </div>`;
+}
+
+function handleChoice(idx){
+  const choice=window._currentChoices[idx];
+  const scenario=gameSequence[currentStep];
+  document.querySelectorAll('.choice-btn').forEach(b=>b.disabled=true);
+  if(scenario.type==='emergency'&&choice.pts===-2){
+    score+=choice.pts; renderGameOver(choice); return;
+  }
+  if(choice.pts===-2&&choice.repeat){
+    score+=choice.pts; window._repeatExclude=choice; updateUI();
+    renderFeedback(choice,scenario,true); return;
+  }
+  score+=choice.pts; updateUI(); renderFeedback(choice,scenario,false);
+}
+
+function renderFeedback(choice,scenario,willRepeat){
+  let tc='bad',icon='😬',pc='pts-neg';
+  if(choice.pts===2){tc='good';icon='✅';pc='pts-pos';}
+  else if(choice.pts===0){tc='ok';icon='😐';pc='pts-zero';}
+  else if(choice.pts===-2){tc='terrible';icon='💥';}
+  const hl={2:'Good call.',0:'Fine. I suppose.','-1':'Oh, Susan.','-2':'Oh NO, Susan.'}[choice.pts]||'Oh, Susan.';
+  const nl=willRepeat?'Try Again (You Must)':(currentStep+1>=gameSequence.length?'See Your Results':'Next Disaster →');
+  document.getElementById('gameArea').innerHTML=`
+    <div class="feedback-card">
+      <div class="feedback-icon">${icon}</div>
+      <div class="feedback-title ${tc}">${hl}</div>
+      <div class="feedback-pts ${pc}">${choice.pts>0?'+':''}${choice.pts} points</div>
+      <p class="feedback-body">${choice.fb}</p>
+      ${willRepeat?'<p style="color:#c1440e;font-weight:700;font-size:.9rem;margin-bottom:12px;">You must choose again — without that option.</p>':''}
+      <button class="next-btn" onclick="${willRepeat?'repeatStep()':'nextStep()'}">${nl}</button>
+    </div>`;
+}
+
+function repeatStep(){
+  const scenario=gameSequence[currentStep];
+  const ex=window._repeatExclude;
+  const filtered=shuffle(scenario.choices.filter(c=>c!==ex&&!(c.pts===-2&&c.repeat)));
+  window._repeatChoices=filtered;
+  document.getElementById('gameArea').innerHTML=`
+    <div class="card">
+      <div class="step-counter">${currentStep+1} / ${gameSequence.length}</div>
+      <div class="emergency-badge" style="background:#8B1A1A">↩ CHOOSE AGAIN</div>
+      <h2>${scenario.title}</h2>
+      <p class="scenario-text">${scenario.text}</p>
+      <div class="choices">
+        ${filtered.map((c,i)=>`<button class="choice-btn" onclick="handleRepeat(${i})">${c.text}</button>`).join('')}
+      </div>
+    </div>`;
+}
+
+function handleRepeat(idx){
+  const choice=window._repeatChoices[idx];
+  const scenario=gameSequence[currentStep];
+  document.querySelectorAll('.choice-btn').forEach(b=>b.disabled=true);
+  score+=choice.pts; updateUI(); renderFeedback(choice,scenario,false);
+}
+
+function nextStep(){currentStep++;renderStep();}
+
+function renderGameOver(choice){
+  updateUI();
+  document.getElementById('gameArea').innerHTML=`
+    <div class="feedback-card gameover">
+      <div class="feedback-icon">🚔</div>
+      <div class="feedback-title arrest">GAME OVER: ARRESTED</div>
+      <div class="feedback-pts pts-neg">-2 points &amp; end of the road</div>
+      <p class="feedback-body">${choice.fb}</p>
+      <p style="color:#ff6b6b;font-weight:700;margin-bottom:20px;font-size:.95rem;">Susan's hosting career has come to an abrupt and legally significant end.</p>
+      <button class="next-btn" onclick="renderFinal()">See Final Score</button>
+    </div>`;
+}
+
+function renderFinal(){
+  const band=bands.find(b=>score>=b.min&&score<=b.max);
+  document.getElementById('progressFill').style.width='100%';
+  document.getElementById('gameArea').innerHTML=`
+    <div class="final-card">
+      <div style="font-size:3.5rem">${band.icon}</div>
+      <h2>${band.title}</h2>
+      <div class="final-score-big">${score}</div>
+      <div style="font-size:.85rem;color:#888;margin-bottom:16px;font-family:'Permanent Marker',cursive">OUT OF 32</div>
+      <div class="divider"></div>
+      <p class="final-verdict">${band.verdict}</p>
+      <button class="restart-btn" onclick="startGame()">Play Again (You Monster)</button>
+      <p class="again-note">48 scenarios in the pool. 16 drawn at random each game. Choices reshuffled every time. Play three times and you may never see the same game twice.</p>
+    </div>`;
+}
+
+function startGame(){
+  gameSequence=buildSequence();
+  currentStep=0; score=0;
+  window._repeatExclude=null;
+  updateUI(); renderStep();
+}
+
+renderIntro();
+updateUI();
+</script>
+</body>
+</html>
